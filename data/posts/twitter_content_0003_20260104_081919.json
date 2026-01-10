@@ -1,0 +1,44 @@
+{
+  "platform": "twitter",
+  "content_id": "content_0003",
+  "posted_at": "2026-01-04T08:19:19.252216",
+  "content": {
+    "id": "content_0003",
+    "type": "image",
+    "theme": "tips",
+    "caption": "\ud83c\udf1f Ready to level up your professional game? Here are some simple tips to boost your productivity and keep you motivated! \ud83d\ude80\u2728 Share your favorite tips in the comments below and let\u2019s support each other on this journey! \ud83d\udcaa\ud83d\udcbc #CareerGrowth #ProfessionalTips",
+    "hashtags": [
+      "tips",
+      "advice",
+      "howto",
+      "learn",
+      "productivity",
+      "lifestyle",
+      "lifestylelife",
+      "lifestyleinspo",
+      "viral",
+      "fyp",
+      "trending",
+      "explore"
+    ],
+    "day_offset": 0,
+    "post_index": 2,
+    "created_at": "2026-01-04T08:18:38.064279",
+    "avatar_data": {
+      "id": "avatar_001",
+      "image_path": "data/avatars/avatar_main.png",
+      "image_url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-NI61cQPYeMI5TxR8wVnOTp7o/user-7kh1Zxi8e5UZ40dROXS3OKwf/img-fepYsLscdJlKjJitcuwHsK0g.png?st=2026-01-04T15%3A18%3A09Z&se=2026-01-04T17%3A18%3A09Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=7daae675-7b42-4e2e-ab4c-8d8419a28d99&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-01-04T09%3A53%3A05Z&ske=2026-01-05T09%3A53%3A05Z&sks=b&skv=2024-08-04&sig=cxNuVXMUpNqVKsHvGj32tZqIUsIvzALwysjG8WCTP48%3D",
+      "prompt": "A realistic portrait photo of a 25-35 year old person, friendly, professional, engaging personality, professional headshot quality, studio lighting, high resolution, photorealistic, detailed facial features, natural expression, suitable for social media profile, modern style",
+      "config": {
+        "style": "realistic",
+        "personality": "friendly, professional, engaging",
+        "age_range": "25-35",
+        "gender": "neutral",
+        "ethnicity": "diverse"
+      },
+      "created_at": "/storage/emulated/0/Movies/autonomous_influencer"
+    },
+    "strategy_id": "strategy_20260104_081830",
+    "media_prompt": "A tips social media post image, featuring the same person from the avatar, related to: \ud83c\udf1f Ready to level up your professional game? Here are some simple tips to boost your productivity and, high quality, professional, Instagram-worthy, bright and engaging, modern aesthetic"
+  }
+}

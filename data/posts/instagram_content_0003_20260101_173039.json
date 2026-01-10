@@ -1,0 +1,44 @@
+{
+  "platform": "instagram",
+  "content_id": "content_0003",
+  "posted_at": "2026-01-01T17:30:39.516914",
+  "content": {
+    "id": "content_0003",
+    "type": "video",
+    "theme": "tips",
+    "caption": "\ud83d\udca1 Quick tip that changed my routine! Share your experience below!",
+    "hashtags": [
+      "tips",
+      "advice",
+      "howto",
+      "learn",
+      "productivity",
+      "lifestyle",
+      "lifestylelife",
+      "lifestyleinspo",
+      "viral",
+      "fyp",
+      "trending",
+      "explore"
+    ],
+    "day_offset": 0,
+    "post_index": 2,
+    "created_at": "2026-01-01T17:30:39.306556",
+    "avatar_data": {
+      "id": "avatar_001",
+      "image_path": null,
+      "prompt": "A realistic portrait photo of a 25-35 year old person, friendly, professional, engaging personality, professional headshot quality, studio lighting, high resolution, photorealistic, detailed facial features, natural expression, suitable for social media profile, modern style",
+      "config": {
+        "style": "realistic",
+        "personality": "friendly, professional, engaging",
+        "age_range": "25-35",
+        "gender": "neutral",
+        "ethnicity": "diverse"
+      },
+      "placeholder": true,
+      "created_at": "/storage/emulated/0/Movies/autonomous_influencer"
+    },
+    "strategy_id": "strategy_20260101_173039",
+    "media_prompt": "A tips social media post image, featuring the same person from the avatar, related to: \ud83d\udca1 Quick tip that changed my routine! Share your experience below!, high quality, professional, Instagram-worthy, bright and engaging, modern aesthetic"
+  }
+}

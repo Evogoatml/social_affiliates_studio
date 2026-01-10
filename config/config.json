@@ -1,0 +1,63 @@
+{
+  "avatar": {
+    "personality": "friendly, professional, engaging",
+    "age_range": "25-35",
+    "gender": "neutral",
+    "ethnicity": "diverse",
+    "style": "realistic"
+  },
+  "marketing": {
+    "goals": [
+      "grow followers",
+      "increase engagement",
+      "build brand"
+    ],
+    "niche": "lifestyle",
+    "target_audience": "18-35 professionals",
+    "content_themes": [
+      "motivation",
+      "lifestyle",
+      "tips",
+      "behind-the-scenes"
+    ]
+  },
+  "social": {
+    "platforms": [
+      "instagram",
+      "twitter",
+      "tiktok"
+    ],
+    "posting_times": {
+      "instagram": [
+        "09:00",
+        "18:00"
+      ],
+      "twitter": [
+        "08:00",
+        "12:00",
+        "20:00"
+      ],
+      "tiktok": [
+        "19:00"
+      ]
+    },
+    "auto_respond": true,
+    "engagement_rate_target": 0.05
+  },
+  "content": {
+    "post_frequency": "daily",
+    "video_ratio": 0.3,
+    "carousel_ratio": 0.4,
+    "single_image_ratio": 0.3,
+    "hashtag_count": {
+      "instagram": 20,
+      "twitter": 5,
+      "tiktok": 10
+    }
+  },
+  "analytics": {
+    "track_engagement": true,
+    "track_growth": true,
+    "optimization_frequency": "daily"
+  }
+}

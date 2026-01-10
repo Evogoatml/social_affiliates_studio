@@ -1,0 +1,44 @@
+{
+  "platform": "instagram",
+  "content_id": "content_0001",
+  "posted_at": "2026-01-04T09:37:52.142740",
+  "content": {
+    "id": "content_0001",
+    "type": "carousel",
+    "theme": "motivation",
+    "caption": "\ud83c\udf1f Feeling stuck or overwhelmed? You're not alone! Every professional faces challenges, but it's how we rise above them that truly defines our journey. Swipe through for some real talk on overcoming obstacles and fueling your passion! \ud83d\udcaa\u2728 \n\n\ud83d\udc49 Tag a friend who needs this reminder today! Let\u2019s lift each other up! #MotivationMonday #RiseAbove",
+    "hashtags": [
+      "motivation",
+      "inspiration",
+      "mindset",
+      "goals",
+      "success",
+      "lifestyle",
+      "lifestylelife",
+      "lifestyleinspo",
+      "viral",
+      "fyp",
+      "trending",
+      "explore"
+    ],
+    "day_offset": 0,
+    "post_index": 0,
+    "created_at": "2026-01-04T09:37:07.601590",
+    "avatar_data": {
+      "id": "avatar_001",
+      "image_path": "data/avatars/avatar_main.png",
+      "image_url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-NI61cQPYeMI5TxR8wVnOTp7o/user-7kh1Zxi8e5UZ40dROXS3OKwf/img-wrDmO02QKK0CfFYF5wvEe1ns.png?st=2026-01-04T16%3A36%3A45Z&se=2026-01-04T18%3A36%3A45Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=8b33a531-2df9-46a3-bc02-d4b1430a422c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-01-04T17%3A36%3A45Z&ske=2026-01-05T17%3A36%3A45Z&sks=b&skv=2024-08-04&sig=6mQYefy/XeoRLQs1P7cfXEhgSUUdeKubzcI8F%2B72FX8%3D",
+      "prompt": "A realistic portrait photo of a 25-35 year old person, friendly, professional, engaging personality, professional headshot quality, studio lighting, high resolution, photorealistic, detailed facial features, natural expression, suitable for social media profile, modern style",
+      "config": {
+        "style": "realistic",
+        "personality": "friendly, professional, engaging",
+        "age_range": "25-35",
+        "gender": "neutral",
+        "ethnicity": "diverse"
+      },
+      "created_at": "/storage/emulated/0/Movies/autonomous_influencer"
+    },
+    "strategy_id": "strategy_20260104_093705",
+    "media_prompt": "A motivation social media post image, featuring the same person from the avatar, related to: \ud83c\udf1f Feeling stuck or overwhelmed? You're not alone! Every professional faces challenges, but it's how , high quality, professional, Instagram-worthy, bright and engaging, modern aesthetic"
+  }
+}

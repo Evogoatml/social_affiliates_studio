@@ -1,0 +1,39 @@
+{
+  "id": "content_0006",
+  "type": "image",
+  "theme": "tips",
+  "caption": "\ud83c\udf1f Ready to level up your professional game? \ud83d\ude80 Here are 5 essential tips to boost your productivity and make workdays feel a little less overwhelming! \ud83c\udf08\u2728 Swipe through and discover strategies that really work! \ud83d\udc49 What\u2019s your go-to productivity hack? Share in the comments! \ud83d\udcac #WorkSmart #ProductivityTips",
+  "hashtags": [
+    "tips",
+    "advice",
+    "howto",
+    "learn",
+    "productivity",
+    "lifestyle",
+    "lifestylelife",
+    "lifestyleinspo",
+    "viral",
+    "fyp",
+    "trending",
+    "explore"
+  ],
+  "day_offset": 1,
+  "post_index": 2,
+  "created_at": "2026-01-05T13:25:12.374279",
+  "avatar_data": {
+    "id": "avatar_001",
+    "image_path": "data/avatars/avatar_main.png",
+    "image_url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-NI61cQPYeMI5TxR8wVnOTp7o/user-7kh1Zxi8e5UZ40dROXS3OKwf/img-YYrd1BXoMre96uIXqjlj6rf3.png?st=2026-01-05T12%3A24%3A39Z&se=2026-01-05T14%3A24%3A39Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=35890473-cca8-4a54-8305-05a39e0bc9c3&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-01-05T10%3A45%3A30Z&ske=2026-01-06T10%3A45%3A30Z&sks=b&skv=2024-08-04&sig=/3rwocVqDpEOI7QgEAN2vGXzpnHwvyoletT/H6nFcHM%3D",
+    "prompt": "A realistic portrait photo of a 25-35 year old person, friendly, professional, engaging personality, professional headshot quality, studio lighting, high resolution, photorealistic, detailed facial features, natural expression, suitable for social media profile, modern style",
+    "config": {
+      "style": "realistic",
+      "personality": "friendly, professional, engaging",
+      "age_range": "25-35",
+      "gender": "neutral",
+      "ethnicity": "diverse"
+    },
+    "created_at": "/home/devuser/merged_build"
+  },
+  "strategy_id": "strategy_20260105_132455",
+  "media_prompt": "A tips social media post image, featuring the same person from the avatar, related to: \ud83c\udf1f Ready to level up your professional game? \ud83d\ude80 Here are 5 essential tips to boost your productivity a, high quality, professional, Instagram-worthy, bright and engaging, modern aesthetic"
+}

@@ -1,0 +1,44 @@
+{
+  "platform": "instagram",
+  "content_id": "content_0001",
+  "posted_at": "2026-01-04T09:03:53.235483",
+  "content": {
+    "id": "content_0001",
+    "type": "carousel",
+    "theme": "motivation",
+    "caption": "\ud83d\ude80 Hey, trailblazers! Remember, every small step counts on your journey to greatness. Whether it's tackling that project or making time for self-care, you\u2019re one decision away from a breakthrough! \ud83d\udcaa\u2728 Swipe through for your daily dose of motivation, and share your favorite tip in the comments! Let's uplift each other! \ud83c\udf1f #MotivationMonday #KeepPushing",
+    "hashtags": [
+      "motivation",
+      "inspiration",
+      "mindset",
+      "goals",
+      "success",
+      "lifestyle",
+      "lifestylelife",
+      "lifestyleinspo",
+      "viral",
+      "fyp",
+      "trending",
+      "explore"
+    ],
+    "day_offset": 0,
+    "post_index": 0,
+    "created_at": "2026-01-04T09:03:08.728004",
+    "avatar_data": {
+      "id": "avatar_001",
+      "image_path": "data/avatars/avatar_main.png",
+      "image_url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-NI61cQPYeMI5TxR8wVnOTp7o/user-7kh1Zxi8e5UZ40dROXS3OKwf/img-QaoPzm6mSJ4WwO0M2ejFrKtg.png?st=2026-01-04T16%3A02%3A44Z&se=2026-01-04T18%3A02%3A44Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=ed3ea2f9-5e38-44be-9a1b-7c1e65e4d54f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-01-04T17%3A02%3A44Z&ske=2026-01-05T17%3A02%3A44Z&sks=b&skv=2024-08-04&sig=sqRg7UMVZI%2BW3G8%2BvwpUUAM5gJAg/OqdC5KOa0tiE/c%3D",
+      "prompt": "A realistic portrait photo of a 25-35 year old person, friendly, professional, engaging personality, professional headshot quality, studio lighting, high resolution, photorealistic, detailed facial features, natural expression, suitable for social media profile, modern style",
+      "config": {
+        "style": "realistic",
+        "personality": "friendly, professional, engaging",
+        "age_range": "25-35",
+        "gender": "neutral",
+        "ethnicity": "diverse"
+      },
+      "created_at": "/storage/emulated/0/Movies/autonomous_influencer"
+    },
+    "strategy_id": "strategy_20260104_090306",
+    "media_prompt": "A motivation social media post image, featuring the same person from the avatar, related to: \ud83d\ude80 Hey, trailblazers! Remember, every small step counts on your journey to greatness. Whether it's ta, high quality, professional, Instagram-worthy, bright and engaging, modern aesthetic"
+  }
+}

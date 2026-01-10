@@ -1,0 +1,59 @@
+{
+  "name": "Lifestyle Influencer Strategy",
+  "content_plan": {
+    "themes": [
+      "motivation",
+      "lifestyle",
+      "tips",
+      "behind-the-scenes"
+    ],
+    "topics": [
+      "lifestyle",
+      "tips",
+      "wellness",
+      "goals"
+    ],
+    "posting_frequency": "daily",
+    "content_mix": {
+      "video": 0.3,
+      "carousel": 0.4,
+      "image": 0.3
+    }
+  },
+  "engagement_tactics": [
+    "Respond to all comments",
+    "Ask questions in captions",
+    "Use polls and stories",
+    "Collaborate with similar accounts"
+  ],
+  "growth_strategies": [
+    "Consistent posting schedule",
+    "Engage with niche community",
+    "Use trending hashtags",
+    "Cross-platform promotion"
+  ],
+  "platforms": {
+    "instagram": {
+      "focus": "visual content",
+      "stories": true
+    },
+    "twitter": {
+      "focus": "quick tips",
+      "threads": true
+    },
+    "tiktok": {
+      "focus": "short videos",
+      "trending_sounds": true
+    }
+  },
+  "tone": "friendly, professional, authentic",
+  "id": "strategy_20260105_132455",
+  "created_at": "2026-01-05T13:24:55.157489",
+  "goals": [
+    "grow followers",
+    "increase engagement",
+    "build brand"
+  ],
+  "niche": "lifestyle",
+  "target_audience": "18-35 professionals"
+}

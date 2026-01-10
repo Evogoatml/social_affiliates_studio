@@ -1,0 +1,84 @@
+{
+  "name": "Lifestyle Influencer Strategy",
+  "content_plan": {
+    "themes": [
+      "motivation",
+      "lifestyle",
+      "tips",
+      "behind-the-scenes"
+    ],
+    "topics": [
+      "daily routines",
+      "self-care",
+      "productivity",
+      "wellness",
+      "mindfulness"
+    ],
+    "posting_frequency": "daily",
+    "content_mix": {
+      "video": 0.3,
+      "carousel": 0.4,
+      "image": 0.3
+    }
+  },
+  "engagement_tactics": [
+    "Respond to all comments within 24 hours",
+    "Ask engaging questions in captions",
+    "Use Instagram Stories polls and questions",
+    "Collaborate with accounts in similar niche",
+    "Engage with followers' content"
+  ],
+  "growth_strategies": [
+    "Post consistently at optimal times",
+    "Engage with niche community hashtags",
+    "Use mix of trending and niche-specific hashtags",
+    "Cross-promote across platforms",
+    "Create shareable, valuable content"
+  ],
+  "platforms": {
+    "instagram": {
+      "focus": "high-quality visual content",
+      "stories": true,
+      "reels": true,
+      "optimal_times": [
+        "09:00",
+        "18:00"
+      ]
+    },
+    "twitter": {
+      "focus": "quick tips and engagement",
+      "threads": true,
+      "optimal_times": [
+        "08:00",
+        "12:00",
+        "20:00"
+      ]
+    },
+    "tiktok": {
+      "focus": "trending short-form videos",
+      "trending_sounds": true,
+      "optimal_times": [
+        "19:00"
+      ]
+    }
+  },
+  "hashtag_strategy": {
+    "mix": "70% niche-specific, 30% trending",
+    "count_per_platform": {
+      "instagram": 20,
+      "twitter": 5,
+      "tiktok": 10
+    }
+  },
+  "tone": "friendly, professional, authentic, relatable",
+  "cta_strategy": "Include soft CTAs in every post",
+  "id": "strategy_20260101_174150",
+  "created_at": "2026-01-01T17:41:50.601596",
+  "goals": [
+    "grow followers",
+    "increase engagement",
+    "build brand"
+  ],
+  "niche": "lifestyle",
+  "target_audience": "18-35 professionals"
+}

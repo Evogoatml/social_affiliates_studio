@@ -1,0 +1,44 @@
+{
+  "platform": "instagram",
+  "content_id": "content_0003",
+  "posted_at": "2026-01-05T13:25:44.141115",
+  "content": {
+    "id": "content_0003",
+    "type": "image",
+    "theme": "tips",
+    "caption": "\ud83c\udf1f Ready to level up your professional game? Check out these essential tips that will help you navigate the workplace with confidence and style! \ud83d\udcbc\u2728 Don't keep this knowledge to yourself\u2014share with someone who needs a boost! What\u2019s your go-to tip for success? Let us know in the comments! \ud83d\udc47\ud83d\udcac #CareerGoals #ProfessionalTips",
+    "hashtags": [
+      "tips",
+      "advice",
+      "howto",
+      "learn",
+      "productivity",
+      "lifestyle",
+      "lifestylelife",
+      "lifestyleinspo",
+      "viral",
+      "fyp",
+      "trending",
+      "explore"
+    ],
+    "day_offset": 0,
+    "post_index": 2,
+    "created_at": "2026-01-05T13:25:04.108417",
+    "avatar_data": {
+      "id": "avatar_001",
+      "image_path": "data/avatars/avatar_main.png",
+      "image_url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-NI61cQPYeMI5TxR8wVnOTp7o/user-7kh1Zxi8e5UZ40dROXS3OKwf/img-YYrd1BXoMre96uIXqjlj6rf3.png?st=2026-01-05T12%3A24%3A39Z&se=2026-01-05T14%3A24%3A39Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=35890473-cca8-4a54-8305-05a39e0bc9c3&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-01-05T10%3A45%3A30Z&ske=2026-01-06T10%3A45%3A30Z&sks=b&skv=2024-08-04&sig=/3rwocVqDpEOI7QgEAN2vGXzpnHwvyoletT/H6nFcHM%3D",
+      "prompt": "A realistic portrait photo of a 25-35 year old person, friendly, professional, engaging personality, professional headshot quality, studio lighting, high resolution, photorealistic, detailed facial features, natural expression, suitable for social media profile, modern style",
+      "config": {
+        "style": "realistic",
+        "personality": "friendly, professional, engaging",
+        "age_range": "25-35",
+        "gender": "neutral",
+        "ethnicity": "diverse"
+      },
+      "created_at": "/home/devuser/merged_build"
+    },
+    "strategy_id": "strategy_20260105_132455",
+    "media_prompt": "A tips social media post image, featuring the same person from the avatar, related to: \ud83c\udf1f Ready to level up your professional game? Check out these essential tips that will help you naviga, high quality, professional, Instagram-worthy, bright and engaging, modern aesthetic"
+  }
+}
