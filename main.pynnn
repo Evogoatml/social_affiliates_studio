@@ -1,0 +1,17 @@
+ncio
+from core.orchestrator import Orchestrator
+
+async def main():
+    orch = Orchestrator()
+    print("=== c core online ===")
+
+    while True:
+        t = input("c> ").strip()
+        if t in ("exit", "quit"):
+            break
+
+        out = await orch.handle(t)
+        print(out)
+
+if __name__ == "__main__":
+    asyncio.run(maimn
