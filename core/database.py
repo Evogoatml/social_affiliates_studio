@@ -129,8 +129,75 @@ class Database:
             )
         ''')
         
+        # Viral content table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS viral_content (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                platform TEXT NOT NULL,
+                content_type TEXT NOT NULL,
+                url TEXT UNIQUE,
+                caption TEXT,
+                hashtags TEXT,
+                likes INTEGER DEFAULT 0,
+                comments INTEGER DEFAULT 0,
+                shares INTEGER DEFAULT 0,
+                views INTEGER DEFAULT 0,
+                engagement_rate REAL DEFAULT 0.0,
+                sound_name TEXT,
+                posted_at TEXT,
+                scraped_at TEXT NOT NULL,
+                is_viral BOOLEAN DEFAULT 0,
+                niche TEXT,
+                simulated BOOLEAN DEFAULT 0
+            )
+        ''')
+        
+        # Trending topics table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS trending_topics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                topic TEXT NOT NULL,
+                platform TEXT NOT NULL,
+                frequency INTEGER DEFAULT 1,
+                engagement_score REAL DEFAULT 0.0,
+                first_seen TEXT NOT NULL,
+                last_seen TEXT NOT NULL,
+                is_trending BOOLEAN DEFAULT 1,
+                niche TEXT
+            )
+        ''')
+        
+        # Trending hashtags table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS trending_hashtags (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                hashtag TEXT NOT NULL,
+                platform TEXT NOT NULL,
+                usage_count INTEGER DEFAULT 1,
+                avg_engagement_rate REAL DEFAULT 0.0,
+                first_seen TEXT NOT NULL,
+                last_seen TEXT NOT NULL,
+                is_trending BOOLEAN DEFAULT 1,
+                UNIQUE(hashtag, platform)
+            )
+        ''')
+        
+        # Content insights table (AI analysis of viral patterns)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS content_insights (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                insight_type TEXT NOT NULL,
+                platform TEXT,
+                niche TEXT,
+                pattern_description TEXT,
+                confidence_score REAL DEFAULT 0.0,
+                recommendation TEXT,
+                created_at TEXT NOT NULL
+            )
+        ''')
+        
         self.conn.commit()
-        logger.info("✅ Database tables created/verified")
+        logger.info("✅ Database tables created/verified (including viral content tables)")
     
     # Content operations
     def save_content(self, content: Dict) -> bool:
@@ -392,6 +459,239 @@ class Database:
         if self.conn:
             self.conn.close()
             logger.info("📊 Database connection closed")
+    
+    # Viral content operations
+    def save_viral_content(self, content: Dict) -> bool:
+        """Save viral content to database"""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute('''
+                INSERT OR REPLACE INTO viral_content 
+                (platform, content_type, url, caption, hashtags, likes, comments, shares, views,
+                 engagement_rate, sound_name, posted_at, scraped_at, is_viral, niche, simulated)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                content.get('platform'),
+                content.get('type'),
+                content.get('url'),
+                content.get('caption'),
+                json.dumps(content.get('hashtags', [])),
+                content.get('likes', 0),
+                content.get('comments', 0),
+                content.get('shares', 0),
+                content.get('views', 0),
+                content.get('engagement_rate', 0.0),
+                content.get('sound_name'),
+                content.get('posted_at'),
+                content.get('scraped_at'),
+                content.get('is_viral', False),
+                content.get('niche'),
+                content.get('simulated', False)
+            ))
+            self.conn.commit()
+            
+            # Update trending hashtags
+            if content.get('hashtags'):
+                self._update_trending_hashtags(
+                    content['hashtags'],
+                    content['platform'],
+                    content.get('engagement_rate', 0.0)
+                )
+            
+            return True
+        except Exception as e:
+            logger.error(f"Failed to save viral content: {e}")
+            return False
+    
+    def save_viral_content_batch(self, contents: List[Dict]) -> int:
+        """Save multiple viral content items"""
+        saved_count = 0
+        for content in contents:
+            if self.save_viral_content(content):
+                saved_count += 1
+        return saved_count
+    
+    def get_viral_content(
+        self,
+        platform: Optional[str] = None,
+        niche: Optional[str] = None,
+        min_engagement: float = 0.0,
+        limit: int = 50
+    ) -> List[Dict]:
+        """Get viral content with filters"""
+        cursor = self.conn.cursor()
+        
+        query = "SELECT * FROM viral_content WHERE 1=1"
+        params = []
+        
+        if platform:
+            query += " AND platform = ?"
+            params.append(platform)
+        
+        if niche:
+            query += " AND niche = ?"
+            params.append(niche)
+        
+        if min_engagement > 0:
+            query += " AND engagement_rate >= ?"
+            params.append(min_engagement)
+        
+        query += " ORDER BY engagement_rate DESC, scraped_at DESC LIMIT ?"
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        
+        results = []
+        for row in cursor.fetchall():
+            content = dict(row)
+            content['hashtags'] = json.loads(content['hashtags']) if content['hashtags'] else []
+            results.append(content)
+        
+        return results
+    
+    def get_top_viral_content(self, platform: Optional[str] = None, limit: int = 20) -> List[Dict]:
+        """Get top performing viral content"""
+        return self.get_viral_content(platform=platform, min_engagement=5.0, limit=limit)
+    
+    # Trending hashtags operations
+    def _update_trending_hashtags(self, hashtags: List[str], platform: str, engagement_rate: float):
+        """Update trending hashtags"""
+        cursor = self.conn.cursor()
+        now = datetime.now().isoformat()
+        
+        for hashtag in hashtags:
+            hashtag = hashtag.lower().strip('#')
+            
+            # Check if exists
+            cursor.execute('''
+                SELECT usage_count, avg_engagement_rate FROM trending_hashtags
+                WHERE hashtag = ? AND platform = ?
+            ''', (hashtag, platform))
+            
+            result = cursor.fetchone()
+            
+            if result:
+                # Update existing
+                new_count = result[0] + 1
+                new_avg = (result[1] * result[0] + engagement_rate) / new_count
+                
+                cursor.execute('''
+                    UPDATE trending_hashtags
+                    SET usage_count = ?, avg_engagement_rate = ?, last_seen = ?, is_trending = 1
+                    WHERE hashtag = ? AND platform = ?
+                ''', (new_count, new_avg, now, hashtag, platform))
+            else:
+                # Insert new
+                cursor.execute('''
+                    INSERT INTO trending_hashtags
+                    (hashtag, platform, usage_count, avg_engagement_rate, first_seen, last_seen)
+                    VALUES (?, ?, 1, ?, ?, ?)
+                ''', (hashtag, platform, engagement_rate, now, now))
+        
+        self.conn.commit()
+    
+    def get_trending_hashtags(
+        self,
+        platform: Optional[str] = None,
+        limit: int = 20
+    ) -> List[Dict]:
+        """Get trending hashtags"""
+        cursor = self.conn.cursor()
+        
+        if platform:
+            cursor.execute('''
+                SELECT * FROM trending_hashtags
+                WHERE platform = ? AND is_trending = 1
+                ORDER BY usage_count DESC, avg_engagement_rate DESC
+                LIMIT ?
+            ''', (platform, limit))
+        else:
+            cursor.execute('''
+                SELECT * FROM trending_hashtags
+                WHERE is_trending = 1
+                ORDER BY usage_count DESC, avg_engagement_rate DESC
+                LIMIT ?
+            ''', (limit,))
+        
+        return [dict(row) for row in cursor.fetchall()]
+    
+    # Content insights operations
+    def save_content_insight(self, insight: Dict) -> bool:
+        """Save AI-generated content insight"""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute('''
+                INSERT INTO content_insights
+                (insight_type, platform, niche, pattern_description, confidence_score, recommendation, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                insight.get('type'),
+                insight.get('platform'),
+                insight.get('niche'),
+                insight.get('pattern'),
+                insight.get('confidence', 0.0),
+                insight.get('recommendation'),
+                datetime.now().isoformat()
+            ))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Failed to save content insight: {e}")
+            return False
+    
+    def get_content_insights(
+        self,
+        platform: Optional[str] = None,
+        niche: Optional[str] = None,
+        limit: int = 10
+    ) -> List[Dict]:
+        """Get content insights"""
+        cursor = self.conn.cursor()
+        
+        query = "SELECT * FROM content_insights WHERE 1=1"
+        params = []
+        
+        if platform:
+            query += " AND platform = ?"
+            params.append(platform)
+        
+        if niche:
+            query += " AND niche = ?"
+            params.append(niche)
+        
+        query += " ORDER BY confidence_score DESC, created_at DESC LIMIT ?"
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+    
+    # Analytics for viral content
+    def get_viral_content_stats(self, days: int = 7) -> Dict:
+        """Get viral content statistics"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute('''
+            SELECT 
+                platform,
+                COUNT(*) as total_content,
+                AVG(engagement_rate) as avg_engagement,
+                SUM(likes) as total_likes,
+                SUM(views) as total_views
+            FROM viral_content
+            WHERE scraped_at >= date('now', '-' || ? || ' days')
+            GROUP BY platform
+        ''', (days,))
+        
+        stats = {}
+        for row in cursor.fetchall():
+            stats[row[0]] = {
+                'total_content': row[1],
+                'avg_engagement': round(row[2], 2) if row[2] else 0,
+                'total_likes': row[3],
+                'total_views': row[4]
+            }
+        
+        return stats
     
     def __enter__(self):
         """Context manager entry"""

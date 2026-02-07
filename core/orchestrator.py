@@ -10,11 +10,14 @@ import json
 
 from .logger import setup_logger
 from .config import Config
+from .database import Database
 from avatar.avatar_generator import AvatarGenerator
 from content.content_engine import ContentEngine
 from marketing.strategy_planner import MarketingStrategyPlanner
 from social.social_manager import SocialMediaManager
 from analytics.analytics_engine import AnalyticsEngine
+from analytics.viral_scraper import ViralContentScraper
+from analytics.viral_intelligence import ViralIntelligenceOptimizer
 
 logger = setup_logger(__name__)
 
@@ -25,6 +28,9 @@ class AutonomousOrchestrator:
         self.config = Config()
         self.running = False
         
+        # Initialize database
+        self.db = Database()
+        
         # Initialize core components
         self.avatar_generator = AvatarGenerator(self.config)
         self.content_engine = ContentEngine(self.config)
@@ -32,13 +38,18 @@ class AutonomousOrchestrator:
         self.social_manager = SocialMediaManager(self.config)
         self.analytics = AnalyticsEngine(self.config)
         
+        # Initialize viral intelligence components
+        self.viral_scraper = ViralContentScraper(self.config)
+        self.viral_optimizer = ViralIntelligenceOptimizer(self.config, self.db)
+        
         # State tracking
         self.avatar_created = False
         self.current_strategy = None
         self.content_queue = []
         self.posting_schedule = []
+        self.last_viral_scrape = None
         
-        logger.info("✓ Orchestrator initialized")
+        logger.info("✓ Orchestrator initialized with Viral Intelligence")
     
     async def start(self):
         """Initialize and start all systems"""
