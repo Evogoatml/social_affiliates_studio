@@ -1,6 +1,6 @@
-# 🤖 Autonomous Influencer System
+# 🤖 Autonomous Influencer System with AI Training
 
-A complete AI-powered system that creates and manages a life-like social media influencer autonomously. This system generates avatars, creates engaging content, posts to multiple platforms, and optimizes strategy based on analytics — all running autonomously.
+A complete AI-powered system that creates and manages a life-like social media influencer autonomously. This system generates avatars, creates engaging content, posts to multiple platforms, scrapes viral content, trains ML models, and optimizes strategy based on analytics — all running autonomously with continuous learning from trending content.
 
 ## ✨ Features
 
@@ -29,6 +29,28 @@ A complete AI-powered system that creates and manages a life-like social media i
 - Analyzes best posting times
 - Automatically optimizes strategy based on performance
 - Growth tracking
+
+### 🔥 Viral Content Intelligence
+- **Automated Scraping**: Collects trending content from Instagram, TikTok, Twitter
+- **Pattern Analysis**: Identifies what makes content go viral
+- **Trend Tracking**: Monitors hashtags, topics, and posting times
+- **Database Storage**: Stores all viral data for training
+- **AI Strategy Optimization**: Uses GPT-4 to analyze trends and optimize content strategy
+
+### 🎓 Machine Learning & Training
+- **Hugging Face Integration**: Fine-tune models on viral content
+- **Caption Generation**: Train custom models for platform-specific captions
+- **Engagement Prediction**: ML models predict content performance
+- **Hashtag Recommendation**: AI-powered hashtag suggestions
+- **Continuous Learning**: Automatically retrains models weekly on new data
+- **Model Management**: Version control, A/B testing, deployment
+
+### 🎛️ Human-in-the-Loop Dashboard
+- **Web Interface**: Real-time monitoring and control
+- **Approval Workflow**: Review and approve content before posting
+- **Live Metrics**: View engagement, content queue, and system status
+- **Manual Override**: Take control when needed
+- **Notification System**: Get alerts for pending approvals
 
 ### 🔄 Autonomous Operation
 - Runs continuously without human intervention
@@ -74,6 +96,19 @@ The setup wizard will guide you through:
 python app.py
 ```
 
+5. **Optional: Start the HITL Dashboard**
+```bash
+cd dashboard
+python server.py
+# Visit http://localhost:5000 for web interface
+```
+
+6. **Optional: Train ML Models**
+```bash
+# See docs/ML_TRAINING_GUIDE.md for full guide
+python -c "from ml.training import setup_training_pipeline; from core.config import Config; from core.database import Database; setup_training_pipeline(Config(), Database())"
+```
+
 ### Manual Configuration
 
 If you prefer manual setup, create a `.env` file:
@@ -111,31 +146,73 @@ POSTING_FREQUENCY=daily
 webapp/
 ├── app.py                      # Main entry point
 ├── setup_wizard.py             # Interactive setup
-├── core/
+├── README.md                   # This file
+├── requirements.txt            # Python dependencies
+│
+├── core/                       # Core system components
 │   ├── orchestrator.py         # Main system orchestrator
 │   ├── config.py               # Configuration management
-│   └── logger.py               # Logging setup
-├── avatar/
+│   ├── logger.py               # Logging setup
+│   ├── database.py             # SQLite database
+│   └── utils.py                # Utility functions
+│
+├── avatar/                     # Avatar generation
 │   └── avatar_generator.py     # AI avatar creation
-├── content/
+│
+├── content/                    # Content generation
 │   ├── content_engine.py       # Content generation
 │   └── media_generator.py      # Image/video generation
-├── marketing/
+│
+├── marketing/                  # Marketing strategy
 │   └── strategy_planner.py     # Marketing strategy
-├── social/
-│   └── social_manager.py       # Social media posting
-├── analytics/
-│   └── analytics_engine.py     # Performance tracking
+│
+├── social/                     # Social media posting
+│   └── social_manager.py       # Multi-platform posting
+│
+├── analytics/                  # Analytics & intelligence
+│   ├── analytics_engine.py     # Performance tracking
+│   ├── viral_scraper.py        # Viral content scraper
+│   └── viral_intelligence.py   # AI strategy optimizer
+│
+├── ml/                         # Machine learning
+│   ├── training.py             # Model training
+│   ├── dataset_builder.py      # Dataset preparation
+│   ├── model_manager.py        # Model versioning
+│   ├── models/                 # Trained models
+│   ├── datasets/               # Training datasets
+│   └── logs/                   # Training logs
+│
+├── dashboard/                  # HITL dashboard
+│   ├── server.py               # Flask server
+│   ├── templates/              # HTML templates
+│   └── static/                 # CSS/JS assets
+│
+├── docs/                       # Documentation
+│   ├── ML_TRAINING_GUIDE.md    # ML training setup
+│   ├── VIRAL_INTELLIGENCE.md   # Viral scraping docs
+│   ├── HITL_DASHBOARD.md       # Dashboard docs
+│   ├── PROJECT_STATUS.md       # Project status
+│   └── HUGGINGFACE_INTEGRATION.md  # HF integration
+│
+├── config/                     # Configuration files
+│   ├── config.json             # System config
+│   ├── agents.yaml             # Agent definitions
+│   └── *.json                  # Other configs
+│
+├── scripts/                    # Utility scripts
+│   ├── python_utils/           # Python utilities
+│   └── *.sh                    # Shell scripts
+│
 ├── data/                       # Generated data
 │   ├── avatars/                # Avatar images
 │   ├── content/                # Generated content
 │   ├── media/                  # Generated media
 │   ├── posts/                  # Posted content records
 │   ├── analytics/              # Analytics data
-│   └── strategies/             # Marketing strategies
-├── logs/                       # System logs
-└── config/
-    └── config.json             # Configuration file
+│   ├── strategies/             # Marketing strategies
+│   └── influencer.db           # SQLite database
+│
+└── logs/                       # System logs
 ```
 
 ## 🎯 Usage
@@ -369,14 +446,19 @@ Contributions are welcome! Please:
 
 ## 🎯 Roadmap
 
-- [ ] Web dashboard for monitoring
-- [ ] Advanced video generation
+- [x] ✅ Web dashboard for monitoring (HITL Dashboard)
+- [x] ✅ Advanced image/video generation
+- [x] ✅ Viral content scraping
+- [x] ✅ ML model training and fine-tuning
+- [x] ✅ Database integration (SQLite)
 - [ ] Multi-language support
 - [ ] Community management features
 - [ ] A/B testing for content
 - [ ] Influencer collaboration tools
-- [ ] Advanced analytics dashboard
 - [ ] Mobile app
+- [ ] Advanced video generation with AI
+- [ ] Real-time engagement tracking
+- [ ] Competitor analysis module
 
 ## ⚡ Performance Tips
 
