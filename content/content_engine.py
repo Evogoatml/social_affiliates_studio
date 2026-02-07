@@ -21,6 +21,7 @@ class ContentEngine:
         self.content_dir = Path("data/content")
         self.content_dir.mkdir(parents=True, exist_ok=True)
         self.content_counter = 0
+        self.media_generator = MediaGenerator(config)
     
     async def generate_daily_content(
         self, 
@@ -94,6 +95,35 @@ class ContentEngine:
         # Generate media description if needed
         if content_type in ["video", "carousel", "image"]:
             content["media_prompt"] = await self._generate_media_prompt(theme, caption, avatar_data)
+            
+            # Generate actual media
+            if content_type == "image":
+                media_data = await self.media_generator.generate_image(
+                    prompt=content["media_prompt"],
+                    content_id=content["id"]
+                )
+                content["media"] = media_data
+            
+            elif content_type == "carousel":
+                # Generate 3-5 carousel slides
+                carousel_prompts = await self._generate_carousel_prompts(theme, caption)
+                carousel_images = await self.media_generator.generate_carousel_images(
+                    prompts=carousel_prompts,
+                    content_id=content["id"]
+                )
+                content["media"] = {
+                    "type": "carousel",
+                    "slides": carousel_images
+                }
+            
+            elif content_type == "video":
+                video_script = await self.generate_video_script(content)
+                video_data = await self.media_generator.generate_video(
+                    script=video_script,
+                    content_id=content["id"],
+                    avatar_data=avatar_data
+                )
+                content["media"] = video_data
         
         # Save content
         await self._save_content(content)
@@ -235,6 +265,25 @@ Caption:"""
         content_file = self.content_dir / f"{content['id']}.json"
         with open(content_file, "w") as f:
             json.dump(content, f, indent=2)
+    
+    async def _generate_carousel_prompts(self, theme: str, caption: str) -> List[str]:
+        """Generate prompts for carousel slides"""
+        # Generate 3-5 related prompts for carousel
+        base_elements = {
+            "motivation": ["success mindset", "goal achievement", "personal growth"],
+            "lifestyle": ["daily routine", "wellness habits", "life balance"],
+            "tips": ["practical advice", "quick wins", "actionable steps"]
+        }
+        
+        elements = base_elements.get(theme, ["content", "information", "value"])
+        
+        prompts = []
+        for i, element in enumerate(elements[:5]):
+            prompt = f"Social media carousel slide {i+1}: {element}, related to {caption[:50]}, "
+            prompt += "clean design, modern aesthetic, Instagram-worthy, professional"
+            prompts.append(prompt)
+        
+        return prompts
     
     async def generate_video_script(self, content: Dict) -> Dict:
         """Generate script for video content"""
