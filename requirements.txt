@@ -100,3 +100,10 @@ instaloader
 flask
 flask-socketio
 python-socketio
+
+# ============================================================================
+# Multi-Agent Frameworks (Optional but Recommended)
+# ============================================================================
+crewai>=0.1.0  # CrewAI for role-based agent collaboration
+crewai-tools>=0.1.0  # CrewAI tools and utilities
+# superagi  # Uncomment to integrate SuperAGI (requires separate setup)
