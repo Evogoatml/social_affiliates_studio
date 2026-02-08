@@ -18,6 +18,7 @@ from social.social_manager import SocialMediaManager
 from analytics.analytics_engine import AnalyticsEngine
 from analytics.viral_scraper import ViralContentScraper
 from analytics.viral_intelligence import ViralIntelligenceOptimizer
+from content.podcast_generator import PodcastGenerator
 
 logger = setup_logger(__name__)
 
@@ -42,14 +43,18 @@ class AutonomousOrchestrator:
         self.viral_scraper = ViralContentScraper(self.config)
         self.viral_optimizer = ViralIntelligenceOptimizer(self.config, self.db)
         
+        # Initialize podcast generator
+        self.podcast_generator = PodcastGenerator(self.config, self.db, self.viral_optimizer)
+        
         # State tracking
         self.avatar_created = False
         self.current_strategy = None
         self.content_queue = []
         self.posting_schedule = []
         self.last_viral_scrape = None
+        self.last_podcast_generation = None
         
-        logger.info("✓ Orchestrator initialized with Viral Intelligence")
+        logger.info("✓ Orchestrator initialized with Viral Intelligence & Podcast Generator")
     
     async def start(self):
         """Initialize and start all systems"""
@@ -168,6 +173,9 @@ class AutonomousOrchestrator:
                 # Check analytics and optimize
                 await self._optimize_based_on_analytics()
                 
+                # Generate daily podcast if it's time
+                await self._generate_daily_podcast_if_needed()
+                
                 # Generate more content if queue is low
                 if len(self.content_queue) < 10:
                     await self._generate_content_batch()
@@ -235,6 +243,49 @@ class AutonomousOrchestrator:
         if datetime.now().weekday() == 0 and datetime.now().hour == 9:
             logger.info("🔄 Updating marketing strategy...")
             await self._plan_strategy()
+    
+    async def _generate_daily_podcast_if_needed(self):
+        """Generate daily podcast episode at scheduled time"""
+        
+        # Check if it's time to generate podcast
+        if not self.podcast_generator.should_generate_now():
+            return
+        
+        # Check if we already generated today
+        today = datetime.now().date()
+        if self.last_podcast_generation and self.last_podcast_generation.date() == today:
+            return
+        
+        logger.info("🎙️ Starting daily podcast generation...")
+        
+        try:
+            # Get duration from config (default 90 minutes)
+            duration = self.config.get('podcast.duration_minutes', 90)
+            
+            # Generate podcast
+            result = await self.podcast_generator.generate_daily_podcast(
+                duration_minutes=duration
+            )
+            
+            if result.get('success'):
+                self.last_podcast_generation = datetime.now()
+                
+                episode_id = result.get('episode_id')
+                audio_count = len(result.get('audio_files', []))
+                
+                logger.info(f"✅ Podcast episode complete: {episode_id}")
+                logger.info(f"🎤 Generated {audio_count} audio segments")
+                logger.info(f"📝 Script: {result.get('script_path')}")
+                
+                # TODO: Upload to podcast platforms (Spotify, Apple Podcasts, YouTube)
+                # TODO: Post announcement on social media
+                
+            else:
+                error = result.get('error', 'Unknown error')
+                logger.error(f"❌ Podcast generation failed: {error}")
+                
+        except Exception as e:
+            logger.exception(f"Error generating podcast: {e}")
     
     async def shutdown(self):
         """Graceful shutdown"""
