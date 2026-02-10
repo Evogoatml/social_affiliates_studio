@@ -3,13 +3,19 @@ Viral Content AI Trainer
 Fine-tunes language models on scraped viral content for improved performance
 """
 
+from __future__ import annotations
+
 import os
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, TYPE_CHECKING
 import pandas as pd
+
+# Type checking imports
+if TYPE_CHECKING:
+    from datasets import Dataset, DatasetDict
 
 # Hugging Face imports
 try:
@@ -63,7 +69,7 @@ class ViralContentTrainer:
         
         self.logger.info("🤖 Viral Content Trainer initialized")
     
-    def prepare_dataset(self, min_engagement: int = 10000) -> Optional[Dataset]:
+    def prepare_dataset(self, min_engagement: int = 10000) -> Optional["Dataset"]:
         """
         Prepare training dataset from viral content database
         

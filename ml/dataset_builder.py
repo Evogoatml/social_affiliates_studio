@@ -3,12 +3,17 @@ Viral Dataset Builder
 Converts scraped viral content into training-ready datasets
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, TYPE_CHECKING
 import pandas as pd
+
+if TYPE_CHECKING:
+    from datasets import Dataset, DatasetDict, Features, Value, Sequence
 
 try:
     from datasets import Dataset, DatasetDict, Features, Value, Sequence
@@ -38,7 +43,7 @@ class ViralDatasetBuilder:
         self,
         min_engagement: int = 5000,
         platforms: Optional[List[str]] = None
-    ) -> Optional[DatasetDict]:
+    ) -> Optional["DatasetDict"]:
         """
         Build dataset for caption generation
         

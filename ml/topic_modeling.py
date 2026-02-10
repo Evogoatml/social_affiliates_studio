@@ -15,8 +15,9 @@ import numpy as np
 # CTM imports
 try:
     from contextualized_topic_models.models.ctm import CombinedTM, ZeroShotTM
-    from contextualized_topic_models.utils.data_preparation import WhiteSpacePreprocessingStopwords, TopicModelDataPreparation
-    from contextualized_topic_models.utils.preprocessing import bert_embeddings_from_list
+    from contextualized_topic_models.utils.data_preparation import TopicModelDataPreparation
+    from contextualized_topic_models.utils.preprocessing import WhiteSpacePreprocessingStopwords
+    from nltk.corpus import stopwords as nltk_stopwords
     CTM_AVAILABLE = True
 except ImportError:
     CTM_AVAILABLE = False
@@ -91,8 +92,10 @@ class ViralTopicModeler:
         try:
             # Preprocessing
             if use_stopwords:
-                sp = WhiteSpacePreprocessingStopwords(texts)
-                preprocessed_docs, unpreprocessed_docs, vocab = sp.preprocess()
+                # Get English stopwords
+                stopwords_list = list(nltk_stopwords.words('english'))
+                sp = WhiteSpacePreprocessingStopwords(texts, stopwords_list=stopwords_list)
+                preprocessed_docs, unpreprocessed_docs, vocab, retained_indices = sp.preprocess()
             else:
                 preprocessed_docs = texts
                 unpreprocessed_docs = texts

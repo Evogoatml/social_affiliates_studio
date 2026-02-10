@@ -7,6 +7,9 @@ import sys
 import logging
 from pathlib import Path
 
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -46,6 +49,14 @@ def run_topic_modeling_example():
     print("="*60 + "\n")
     
     try:
+        # Download NLTK stopwords if needed
+        import nltk
+        try:
+            nltk.data.find('corpora/stopwords')
+        except LookupError:
+            print("Downloading NLTK stopwords...")
+            nltk.download('stopwords', quiet=True)
+        
         from ml.topic_modeling import ViralTopicModeler
         
         # Mock config and database for example
