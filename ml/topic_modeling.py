@@ -52,6 +52,7 @@ class ViralTopicModeler:
         # CTM configuration
         self.num_topics = 10  # Default number of topics
         self.model_type = "combined"  # or "zeroshot"
+        self.analysis_sample_size = 100  # Number of documents to analyze for topic prevalence
         
         # Model instances
         self.model = None
@@ -178,6 +179,18 @@ class ViralTopicModeler:
             
             self.model.save(models_dir=save_path)
             
+            # Save model configuration for future loading
+            config_data = {
+                'bow_size': len(self.tp.vocab),
+                'contextual_size': 384,
+                'n_components': num_topics,
+                'model_type': model_type,
+                'timestamp': datetime.now().isoformat()
+            }
+            config_path = Path(save_path) / "model_config.json"
+            with open(config_path, 'w') as f:
+                json.dump(config_data, f, indent=2)
+            
             self.logger.info(f"✅ Model trained and saved to: {save_path}")
             return save_path
             
@@ -185,12 +198,13 @@ class ViralTopicModeler:
             self.logger.error(f"Error training model: {e}")
             return None
     
-    def load_model(self, model_path: str) -> bool:
+    def load_model(self, model_path: str, config_path: Optional[str] = None) -> bool:
         """
         Load a pre-trained topic model
         
         Args:
             model_path: Path to saved model
+            config_path: Optional path to model configuration JSON file
             
         Returns:
             True if successful, False otherwise
@@ -200,11 +214,31 @@ class ViralTopicModeler:
             return False
         
         try:
+            # Load configuration if available
+            bow_size = 1  # Default placeholder
+            contextual_size = 384  # MiniLM embedding size
+            n_components = 10  # Default
+            
+            if config_path and Path(config_path).exists():
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                    bow_size = config.get('bow_size', bow_size)
+                    contextual_size = config.get('contextual_size', contextual_size)
+                    n_components = config.get('n_components', n_components)
+            
             # Determine model type from path
             if "combined" in model_path:
-                self.model = CombinedTM(bow_size=1, contextual_size=384, n_components=10)
+                self.model = CombinedTM(
+                    bow_size=bow_size,
+                    contextual_size=contextual_size,
+                    n_components=n_components
+                )
             else:
-                self.model = ZeroShotTM(bow_size=1, contextual_size=384, n_components=10)
+                self.model = ZeroShotTM(
+                    bow_size=bow_size,
+                    contextual_size=contextual_size,
+                    n_components=n_components
+                )
             
             self.model.load(model_path)
             self.logger.info(f"✅ Model loaded from: {model_path}")
@@ -343,7 +377,7 @@ class ViralTopicModeler:
         topic_labels = self.get_topic_labels()
         
         # Get topic distributions
-        topic_distributions = self.predict_topics(texts[:100])  # Analyze first 100 for efficiency
+        topic_distributions = self.predict_topics(texts[:self.analysis_sample_size])
         
         # Analyze topic prevalence
         topic_prevalence = {}
