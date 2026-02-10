@@ -3,3 +3,13 @@ node_modules
 *.csv
 output/*
 user-preferences.json
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
