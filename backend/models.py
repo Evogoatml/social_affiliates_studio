@@ -1,18 +1,21 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
+from django.db import models
 
-Base = declarative_base()
+class Influencer(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    followers_count = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-class Influencer(Base):
-    __tablename__ = 'influencers'
+    def __str__(self):
+        return self.name
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    niche = Column(String, nullable=False)
-    followers = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+class User(models.Model):
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def __repr__(self):
-        return f"<Influencer(name='{self.name}', niche='{self.niche}', followers='{self.followers}')>",
+    def __str__(self):
+        return self.username
