@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 # Constants
-MIN_TOPIC_PROBABILITY = 0.1  # Minimum probability threshold for displaying topics
+MIN_TOPIC_DISPLAY_THRESHOLD = 0.1  # Minimum probability (0-1) for displaying topics (10%)
 
 # Example viral content texts
 EXAMPLE_VIRAL_POSTS = [
@@ -135,7 +135,7 @@ def run_topic_modeling_example():
                 top_topic_indices = predictions[i].argsort()[-3:][::-1]
                 for idx in top_topic_indices:
                     prob = predictions[i][idx]
-                    if prob > MIN_TOPIC_PROBABILITY:
+                    if prob > MIN_TOPIC_DISPLAY_THRESHOLD:
                         topic_label = ', '.join(topics[idx][:3])
                         print(f"      - Topic {idx} ({topic_label}): {prob:.1%}")
         

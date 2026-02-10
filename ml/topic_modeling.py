@@ -215,7 +215,7 @@ class ViralTopicModeler:
         
         try:
             # Load configuration if available
-            bow_size = 1  # Default placeholder
+            bow_size = 2000  # Default vocabulary size (typical for topic modeling)
             contextual_size = 384  # MiniLM embedding size
             n_components = 10  # Default
             
@@ -225,6 +225,12 @@ class ViralTopicModeler:
                     bow_size = config.get('bow_size', bow_size)
                     contextual_size = config.get('contextual_size', contextual_size)
                     n_components = config.get('n_components', n_components)
+            else:
+                self.logger.warning(
+                    f"Model configuration file not found at {config_path}. "
+                    f"Using default values: bow_size={bow_size}, n_components={n_components}. "
+                    "Model loading may fail if these don't match the saved model."
+                )
             
             # Determine model type from path
             if "combined" in model_path:

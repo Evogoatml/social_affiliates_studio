@@ -424,17 +424,19 @@ huggingface-cli login
 
 ## 📦 Recommended Models
 
-### Caption Generation
+### Text Generation & Analysis
+
+#### Caption Generation
 - **Mistral-7B-Instruct-v0.3** (Best overall)
 - **Llama-3.1-8B-Instruct** (Higher quality, slower)
 - **GPT-2-Medium** (Fast, lightweight)
 
-### Engagement Prediction
+#### Engagement Prediction
 - **BERT-base-uncased** (Good baseline)
 - **RoBERTa-large** (Better performance)
 - **twitter-roberta-base-sentiment** (Pre-trained on social media)
 
-### Topic Modeling
+#### Topic Modeling
 - **Contextualized Topic Models (CTM)** (Combines BERT embeddings with topic modeling)
 - **CombinedTM** (Best for general topic discovery)
 - **ZeroShotTM** (Best for multilingual or cross-lingual analysis)
