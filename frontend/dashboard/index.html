@@ -4,60 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function loadAccounts() {
+            try {
+                const response = await fetch('http://<YOUR_FLASK_API_URL>/accounts'); // Replace with your Flask API URL
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const accounts = await response.json();
+                const accountsList = document.getElementById('accountsList');
+                accounts.forEach(account => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = account.name; // Adjust according to your account object structure
+                    accountsList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+            }
+        }
+
+        window.onload = loadAccounts;
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Dashboard</h1>
-
-        <!-- Search Bar -->
-        <input type="text" id="search" placeholder="Search...">
-
-        <!-- Add Influencer Form -->
-        <form id="add-influencer-form">
-            <input type="text" id="influencer-name" placeholder="Influencer Name" required>
-            <button type="submit">Add Influencer</button>
-        </form>
-
-        <!-- Influencer List with Delete Buttons -->
-        <ul id="influencer-list">
-            <!-- Example list item -->
-            <li>Influencer 1 <button class="delete">Delete</button></li>
-            <li>Influencer 2 <button class="delete">Delete</button></li>
-        </ul>
-
-        <!-- Export Button -->
-        <button id="export-btn">Export</button>
-
-        <!-- Chart.js Chart -->
-        <canvas id="myChart"></canvas>
-
-        <!-- Authentication Section -->
-        <div id="auth-section">
-            <h2>Login</h2>
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button id="login-btn">Login</button>
-        </div>
-    </div>
-
-    <script>
-        // Initialize Chart.js here
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                datasets: [{
-                    label: 'Influencers',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {}
-        });
-    </script>
+    <h1>Account Dashboard</h1>
+    <ul id="accountsList">
+        <!-- Accounts will be loaded here -->
+    </ul>
 </body>
 </html>
