@@ -31,6 +31,9 @@ pip install transformers datasets accelerate peft bitsandbytes
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 pip install diffusers huggingface_hub sentencepiece protobuf
 
+# Install topic modeling
+pip install contextualized-topic-models
+
 # Optional: For faster training
 pip install flash-attn --no-build-isolation
 ```
@@ -421,19 +424,125 @@ huggingface-cli login
 
 ## 📦 Recommended Models
 
-### Caption Generation
+### Text Generation & Analysis
+
+#### Caption Generation
 - **Mistral-7B-Instruct-v0.3** (Best overall)
 - **Llama-3.1-8B-Instruct** (Higher quality, slower)
 - **GPT-2-Medium** (Fast, lightweight)
 
-### Engagement Prediction
+#### Engagement Prediction
 - **BERT-base-uncased** (Good baseline)
 - **RoBERTa-large** (Better performance)
 - **twitter-roberta-base-sentiment** (Pre-trained on social media)
 
+#### Topic Modeling
+- **Contextualized Topic Models (CTM)** (Combines BERT embeddings with topic modeling)
+- **CombinedTM** (Best for general topic discovery)
+- **ZeroShotTM** (Best for multilingual or cross-lingual analysis)
+
 ### Image Generation
 - **Stable Diffusion XL** (High quality)
 - **SDXL-Turbo** (Fast generation)
+
+---
+
+## 🎯 Topic Modeling for Viral Content
+
+### Overview
+The system now includes Contextualized Topic Models (CTM) for discovering themes and patterns in viral content. This helps understand what topics resonate with audiences.
+
+### Quick Start: Topic Modeling
+```python
+from ml.topic_modeling import ViralTopicModeler
+from core.config import Config
+from core.database import Database
+
+# Initialize
+config = Config()
+database = Database()
+modeler = ViralTopicModeler(config, database)
+
+# Analyze viral content
+results = modeler.analyze_viral_content(
+    platform="instagram",
+    min_engagement=10000,
+    limit=500
+)
+
+print(f"Discovered {results['num_topics']} topics:")
+for topic_id, words in results['topics'].items():
+    print(f"Topic {topic_id}: {', '.join(words[:5])}")
+```
+
+### Manual Topic Modeling Workflow
+```python
+# 1. Prepare your texts
+texts = [
+    "Amazing workout routine for beginners...",
+    "Morning motivation tips...",
+    "Healthy meal prep ideas..."
+]
+
+# 2. Prepare data
+training_data = modeler.prepare_data(texts, use_stopwords=True)
+
+# 3. Train model
+model_path = modeler.train_model(
+    training_data,
+    num_topics=5,
+    model_type="combined",
+    num_epochs=100
+)
+
+# 4. Get topics
+topics = modeler.get_topics(top_k=10)
+for i, topic in enumerate(topics):
+    print(f"Topic {i}: {topic}")
+
+# 5. Predict topics for new content
+new_texts = ["New fitness motivation post..."]
+topic_dist = modeler.predict_topics(new_texts)
+print(f"Topic distribution: {topic_dist}")
+```
+
+### Model Types
+
+#### CombinedTM (Default)
+Best for general-purpose topic modeling. Combines bag-of-words with contextual embeddings.
+```python
+modeler.train_model(training_data, model_type="combined")
+```
+
+#### ZeroShotTM
+Best for multilingual content or when vocabulary might be incomplete.
+```python
+modeler.train_model(training_data, model_type="zeroshot")
+```
+
+### Integration with Content Strategy
+```python
+# Analyze what topics are trending
+results = modeler.analyze_viral_content(platform="tiktok", limit=1000)
+
+# Identify top performing topics
+top_topics = sorted(
+    results['topic_prevalence'].items(),
+    key=lambda x: x[1],
+    reverse=True
+)[:3]
+
+print("Top 3 trending topics:")
+for topic_id, prevalence in top_topics:
+    print(f"{results['topic_labels'][topic_id]}: {prevalence:.2%}")
+```
+
+### Best Practices for Topic Modeling
+- ✅ Use at least 100-200 documents for reliable topics
+- ✅ Start with 5-10 topics, adjust based on results
+- ✅ Filter content by engagement (>10k recommended)
+- ✅ Re-run analysis weekly to track topic trends
+- ✅ Use topic insights to guide content creation
 
 ---
 
@@ -443,10 +552,12 @@ huggingface-cli login
 - Transformers: https://huggingface.co/docs/transformers
 - Datasets: https://huggingface.co/docs/datasets
 - PEFT (LoRA): https://huggingface.co/docs/peft
+- Contextualized Topic Models: https://github.com/MilaNLProc/contextualized-topic-models
 
 ### Tutorials
 - Fine-tune LLMs: https://huggingface.co/blog/llama2
 - LoRA Training: https://huggingface.co/blog/lora
+- CTM Documentation: https://contextualized-topic-models.readthedocs.io
 
 ### Community
 - Forum: https://discuss.huggingface.co/
@@ -461,8 +572,9 @@ huggingface-cli login
 3. ✅ Generate test captions
 4. ✅ Integrate into content engine
 5. ✅ Enable automated training
-6. ✅ Monitor performance
-7. ✅ Iterate and improve
+6. ✅ Run topic modeling on viral content
+7. ✅ Monitor performance
+8. ✅ Iterate and improve
 
 ---
 
