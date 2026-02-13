@@ -13,11 +13,13 @@ from .config import Config
 from .database import Database
 from avatar.avatar_generator import AvatarGenerator
 from content.content_engine import ContentEngine
+from content.video_generator import VideoGenerator
 from marketing.strategy_planner import MarketingStrategyPlanner
 from social.social_manager import SocialMediaManager
 from analytics.analytics_engine import AnalyticsEngine
 from analytics.viral_scraper import ViralContentScraper
 from analytics.viral_intelligence import ViralIntelligenceOptimizer
+from analytics.video_analytics import VideoAnalytics
 from content.podcast_generator import PodcastGenerator
 
 logger = setup_logger(__name__)
@@ -43,6 +45,13 @@ class AutonomousOrchestrator:
         self.viral_scraper = ViralContentScraper(self.config)
         self.viral_optimizer = ViralIntelligenceOptimizer(self.config, self.db)
         
+        # Initialize video generation system
+        self.video_generator = VideoGenerator(self.config, self.db)
+        self.video_analytics = VideoAnalytics(self.db)
+        
+        # Link video generator to content engine's media generator
+        self.content_engine.media_generator.set_video_generator(self.video_generator)
+        
         # Initialize podcast generator
         self.podcast_generator = PodcastGenerator(self.config, self.db, self.viral_optimizer)
         
@@ -53,8 +62,9 @@ class AutonomousOrchestrator:
         self.posting_schedule = []
         self.last_viral_scrape = None
         self.last_podcast_generation = None
+        self.last_video_generation = None
         
-        logger.info("✓ Orchestrator initialized with Viral Intelligence & Podcast Generator")
+        logger.info("✓ Orchestrator initialized with Viral Intelligence, Video Generation & Podcast Generator")
     
     async def start(self):
         """Initialize and start all systems"""
@@ -115,6 +125,35 @@ class AutonomousOrchestrator:
         if not self.current_strategy:
             await self._plan_strategy()
         
+        # Check if we should scrape trending content for video generation
+        should_scrape = (
+            self.last_viral_scrape is None or
+            (datetime.now() - self.last_viral_scrape).total_seconds() > 21600  # 6 hours
+        )
+        
+        if should_scrape:
+            logger.info("🔥 Scraping trending content for video generation...")
+            try:
+                platforms = self.config.get("social.platforms", ["instagram", "tiktok"])
+                niche = self.config.get("marketing.niche", "lifestyle")
+                viral_data = await self.viral_scraper.scrape_trending_content(
+                    platforms=platforms,
+                    niche=niche,
+                    limit=20
+                )
+                
+                # Analyze patterns
+                if viral_data:
+                    insights = await self.viral_optimizer.analyze_patterns(viral_data)
+                    
+                    # Generate videos from top trending topics
+                    if self.config.get("content.video_generation.trending_topics", True):
+                        await self._generate_videos_from_trends(insights[:3], viral_data[:5])
+                
+                self.last_viral_scrape = datetime.now()
+            except Exception as e:
+                logger.exception(f"❌ Error scraping trending content: {e}")
+        
         # Generate content for the next week
         content_plan = self.current_strategy.get("content_plan", {})
         
@@ -127,6 +166,56 @@ class AutonomousOrchestrator:
             self.content_queue.extend(content_items)
         
         logger.info(f"✅ Generated {len(self.content_queue)} content items")
+    
+    async def _generate_videos_from_trends(self, insights: List[Dict], viral_data: List[Dict]):
+        """Generate videos based on trending insights"""
+        logger.info(f"🎬 Generating videos from {len(insights)} trending insights...")
+        
+        video_enabled = self.config.get("content.video_generation.trending_topics", True)
+        if not video_enabled:
+            logger.info("⏭️ Video generation from trends is disabled")
+            return
+        
+        avatar_data = self.avatar_generator.get_avatar_data()
+        
+        for idx, insight in enumerate(insights):
+            try:
+                # Find matching viral content
+                trend = viral_data[idx] if idx < len(viral_data) else insight
+                
+                # Generate video
+                logger.info(f"🎬 Generating video {idx + 1}/{len(insights)} from trend: {trend.get('caption', '')[:50]}...")
+                
+                result = await self.video_generator.generate_video_from_trend(
+                    trend=trend,
+                    avatar=avatar_data,
+                    platform="instagram"
+                )
+                
+                if result and result.video_url:
+                    logger.info(f"✅ Video generated: {result.job_id} (cost: ${result.cost_usd:.2f})")
+                    
+                    # Add to content queue
+                    self.content_queue.append({
+                        "id": f"video_{result.job_id}",
+                        "type": "video",
+                        "video_url": result.video_url,
+                        "thumbnail_url": result.thumbnail_url,
+                        "caption": trend.get("caption", ""),
+                        "hashtags": trend.get("hashtags", []),
+                        "duration": result.duration,
+                        "cost_usd": result.cost_usd,
+                        "created_at": datetime.now().isoformat(),
+                        "from_trending": True
+                    })
+                else:
+                    logger.warning(f"⚠️ Video generation failed for trend {idx + 1}")
+            
+            except Exception as e:
+                logger.exception(f"❌ Error generating video from trend {idx + 1}: {e}")
+        
+        self.last_video_generation = datetime.now()
+    
     
     async def _schedule_posts(self):
         """Schedule posts across platforms"""
@@ -291,6 +380,13 @@ class AutonomousOrchestrator:
         """Graceful shutdown"""
         logger.info("🛑 Shutting down...")
         self.running = False
+        
+        # Close video generator sessions
+        try:
+            await self.video_generator.close()
+            logger.info("✅ Video generator closed")
+        except Exception as e:
+            logger.exception(f"Error closing video generator: {e}")
         
         # Save state
         await self._save_state()

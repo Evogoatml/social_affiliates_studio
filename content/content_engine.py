@@ -10,6 +10,7 @@ import json
 
 from core.logger import setup_logger
 from core.config import Config
+from content.media_generator import MediaGenerator
 
 logger = setup_logger(__name__)
 
