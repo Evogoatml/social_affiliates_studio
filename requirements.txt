@@ -6,8 +6,8 @@ requests>=2.30.0
 flask>=2.3.0
 contextualized-topic-models>=2.6.0
 
-# Video generation dependencies
+# Video generation dependencies (security-patched versions)
 moviepy>=1.0.3
-Pillow>=10.0.0
-aiohttp>=3.9.0
+Pillow>=10.2.0  # CVE fixes for libwebp and arbitrary code execution
+aiohttp>=3.13.3  # CVE fixes for zip bomb, DOS, and directory traversal
 pydantic>=2.5.0
