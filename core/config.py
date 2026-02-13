@@ -78,7 +78,14 @@ class Config:
             "stability": os.getenv("STABILITY_API_KEY", ""),
             "instagram": os.getenv("INSTAGRAM_ACCESS_TOKEN", ""),
             "twitter": os.getenv("TWITTER_BEARER_TOKEN", ""),
-            "tiktok": os.getenv("TIKTOK_ACCESS_TOKEN", "")
+            "tiktok": os.getenv("TIKTOK_ACCESS_TOKEN", ""),
+            "video": {
+                "runway": os.getenv("RUNWAY_API_KEY", ""),
+                "heygen": os.getenv("HEYGEN_API_KEY", ""),
+                "kling": os.getenv("KLING_API_KEY", ""),
+                "pika": os.getenv("PIKA_API_KEY", ""),
+                "openai": os.getenv("OPENAI_API_KEY", ""),  # For Sora
+            }
         }
     
     def _save_config(self):

@@ -196,8 +196,46 @@ class Database:
             )
         ''')
         
+        # Video generations table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS video_generations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_id TEXT UNIQUE NOT NULL,
+                provider TEXT NOT NULL,
+                prompt TEXT,
+                cost_usd REAL DEFAULT 0.0,
+                duration_seconds INTEGER,
+                status TEXT NOT NULL,
+                video_url TEXT,
+                thumbnail_url TEXT,
+                created_at TEXT NOT NULL,
+                completed_at TEXT,
+                instagram_post_id TEXT,
+                views INTEGER DEFAULT 0,
+                engagement_rate REAL DEFAULT 0.0,
+                trend_id TEXT,
+                error_message TEXT
+            )
+        ''')
+        
+        # Provider performance table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS provider_performance (
+                provider TEXT PRIMARY KEY,
+                total_videos INTEGER DEFAULT 0,
+                successful_videos INTEGER DEFAULT 0,
+                failed_videos INTEGER DEFAULT 0,
+                success_rate REAL DEFAULT 0.0,
+                avg_cost_usd REAL DEFAULT 0.0,
+                avg_generation_time_seconds REAL DEFAULT 0.0,
+                total_spent_usd REAL DEFAULT 0.0,
+                last_used TEXT,
+                updated_at TEXT NOT NULL
+            )
+        ''')
+        
         self.conn.commit()
-        logger.info("✅ Database tables created/verified (including viral content tables)")
+        logger.info("✅ Database tables created/verified (including viral content and video generation tables)")
     
     # Content operations
     def save_content(self, content: Dict) -> bool:
@@ -692,6 +730,195 @@ class Database:
             }
         
         return stats
+    
+    # Video generation operations
+    def add_video_generation(self, video_data: Dict) -> bool:
+        """Save video generation to database"""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute('''
+                INSERT INTO video_generations (
+                    job_id, provider, prompt, cost_usd, duration_seconds,
+                    status, video_url, thumbnail_url, created_at, trend_id, error_message
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                video_data.get("job_id"),
+                video_data.get("provider", ""),
+                video_data.get("prompt"),
+                video_data.get("cost_usd", 0.0),
+                video_data.get("duration_seconds", 0),
+                video_data.get("status", "queued"),
+                video_data.get("video_url", ""),
+                video_data.get("thumbnail_url", ""),
+                video_data.get("created_at"),
+                video_data.get("trend_id", ""),
+                video_data.get("error_message", "")
+            ))
+            self.conn.commit()
+            logger.info(f"✅ Video generation saved: {video_data.get('job_id')}")
+            return True
+        except Exception as e:
+            logger.exception(f"Failed to save video generation: {e}")
+            return False
+    
+    def update_video_generation(self, job_id: str, updates: Dict) -> bool:
+        """Update video generation status"""
+        try:
+            cursor = self.conn.cursor()
+            
+            # Build update query dynamically
+            set_clause = ", ".join([f"{key} = ?" for key in updates.keys()])
+            query = f"UPDATE video_generations SET {set_clause} WHERE job_id = ?"
+            
+            params = list(updates.values()) + [job_id]
+            cursor.execute(query, params)
+            self.conn.commit()
+            
+            logger.info(f"✅ Video generation updated: {job_id}")
+            return True
+        except Exception as e:
+            logger.exception(f"Failed to update video generation: {e}")
+            return False
+    
+    def get_video_generation(self, job_id: str) -> Optional[Dict]:
+        """Get video generation by job_id"""
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT * FROM video_generations WHERE job_id = ?', (job_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    
+    def get_video_generations(
+        self,
+        provider: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 50
+    ) -> List[Dict]:
+        """Get video generations with filters"""
+        cursor = self.conn.cursor()
+        
+        query = "SELECT * FROM video_generations WHERE 1=1"
+        params = []
+        
+        if provider:
+            query += " AND provider = ?"
+            params.append(provider)
+        
+        if status:
+            query += " AND status = ?"
+            params.append(status)
+        
+        query += " ORDER BY created_at DESC LIMIT ?"
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def update_provider_performance(self, provider: str, video_data: Dict):
+        """Update provider performance metrics"""
+        try:
+            cursor = self.conn.cursor()
+            
+            # Get current stats
+            cursor.execute('SELECT * FROM provider_performance WHERE provider = ?', (provider,))
+            row = cursor.fetchone()
+            
+            if row:
+                # Update existing record
+                current = dict(row)
+                total_videos = current['total_videos'] + 1
+                successful = current['successful_videos'] + (1 if video_data.get('status') == 'completed' else 0)
+                failed = current['failed_videos'] + (1 if video_data.get('status') == 'failed' else 0)
+                success_rate = (successful / total_videos) * 100 if total_videos > 0 else 0
+                
+                # Calculate new averages
+                cost = video_data.get('cost_usd', 0.0)
+                total_spent = current['total_spent_usd'] + cost
+                avg_cost = total_spent / total_videos if total_videos > 0 else 0
+                
+                cursor.execute('''
+                    UPDATE provider_performance SET
+                        total_videos = ?,
+                        successful_videos = ?,
+                        failed_videos = ?,
+                        success_rate = ?,
+                        avg_cost_usd = ?,
+                        total_spent_usd = ?,
+                        last_used = ?,
+                        updated_at = ?
+                    WHERE provider = ?
+                ''', (
+                    total_videos, successful, failed, success_rate,
+                    avg_cost, total_spent,
+                    datetime.now().isoformat(),
+                    datetime.now().isoformat(),
+                    provider
+                ))
+            else:
+                # Insert new record
+                success_rate = 100.0 if video_data.get('status') == 'completed' else 0.0
+                cursor.execute('''
+                    INSERT INTO provider_performance (
+                        provider, total_videos, successful_videos, failed_videos,
+                        success_rate, avg_cost_usd, total_spent_usd, last_used, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    provider, 1,
+                    1 if video_data.get('status') == 'completed' else 0,
+                    1 if video_data.get('status') == 'failed' else 0,
+                    success_rate,
+                    video_data.get('cost_usd', 0.0),
+                    video_data.get('cost_usd', 0.0),
+                    datetime.now().isoformat(),
+                    datetime.now().isoformat()
+                ))
+            
+            self.conn.commit()
+            logger.info(f"✅ Provider performance updated: {provider}")
+        except Exception as e:
+            logger.exception(f"Failed to update provider performance: {e}")
+    
+    def get_provider_performance(self, provider: Optional[str] = None) -> Dict:
+        """Get provider performance metrics"""
+        cursor = self.conn.cursor()
+        
+        if provider:
+            cursor.execute('SELECT * FROM provider_performance WHERE provider = ?', (provider,))
+            row = cursor.fetchone()
+            return dict(row) if row else {}
+        else:
+            cursor.execute('SELECT * FROM provider_performance ORDER BY success_rate DESC')
+            return {row['provider']: dict(row) for row in cursor.fetchall()}
+    
+    def get_video_analytics(self, days: int = 30) -> Dict:
+        """Get video generation analytics"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute('''
+            SELECT 
+                COUNT(*) as total_videos,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+                SUM(cost_usd) as total_cost,
+                AVG(cost_usd) as avg_cost,
+                AVG(duration_seconds) as avg_duration,
+                AVG(engagement_rate) as avg_engagement
+            FROM video_generations
+            WHERE created_at >= date('now', '-' || ? || ' days')
+        ''', (days,))
+        
+        row = cursor.fetchone()
+        
+        if row:
+            return {
+                'total_videos': row[0] or 0,
+                'completed': row[1] or 0,
+                'failed': row[2] or 0,
+                'total_cost': round(row[3] or 0.0, 2),
+                'avg_cost': round(row[4] or 0.0, 2),
+                'avg_duration': round(row[5] or 0.0, 1),
+                'avg_engagement': round(row[6] or 0.0, 3)
+            }
+        return {}
     
     def __enter__(self):
         """Context manager entry"""

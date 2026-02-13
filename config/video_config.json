@@ -1,0 +1,73 @@
+{
+  "video_generation": {
+    "enabled": true,
+    "default_provider": "kling",
+    "fallback_providers": ["pika", "runway"],
+    "budget": {
+      "daily_limit_usd": 10.0,
+      "monthly_limit_usd": 200.0,
+      "per_video_max_usd": 2.0
+    },
+    "instagram_settings": {
+      "reels_duration": 15,
+      "stories_duration": 15,
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "max_file_size_mb": 100
+    },
+    "providers": {
+      "kling": {
+        "enabled": true,
+        "priority": 1,
+        "cost_per_video": 0.0,
+        "rate_limit_per_day": 10,
+        "max_duration": 60,
+        "supported_styles": ["default", "cinematic", "trendy", "professional", "casual"]
+      },
+      "pika": {
+        "enabled": false,
+        "priority": 2,
+        "cost_per_video": 0.5,
+        "cost_per_second": 0.033,
+        "rate_limit_per_minute": 5,
+        "rate_limit_per_day": 100,
+        "max_duration": 30,
+        "supported_styles": ["default", "anime", "3d", "realistic"]
+      },
+      "runway": {
+        "enabled": false,
+        "priority": 3,
+        "cost_per_video": 1.5,
+        "cost_per_second": 0.1,
+        "rate_limit_per_minute": 2,
+        "rate_limit_per_day": 300,
+        "max_duration": 30,
+        "supported_styles": ["default", "cinematic", "artistic", "professional"]
+      },
+      "heygen": {
+        "enabled": false,
+        "priority": 4,
+        "cost_per_video": 2.0,
+        "cost_per_minute": 8.0,
+        "rate_limit_per_minute": 1,
+        "rate_limit_per_day": 50,
+        "max_duration": 60,
+        "default_avatar_id": "default",
+        "default_voice_id": "en-US-JennyNeural",
+        "supported_styles": ["professional", "casual", "friendly", "energetic"]
+      }
+    },
+    "retry_policy": {
+      "max_retries": 3,
+      "initial_delay_seconds": 2,
+      "max_delay_seconds": 60,
+      "exponential_backoff": true
+    },
+    "quality_settings": {
+      "default_fps": 30,
+      "default_bitrate": "8M",
+      "enable_thumbnail_generation": true,
+      "thumbnail_timestamp": 0.5
+    }
+  }
+}

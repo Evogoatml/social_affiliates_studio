@@ -46,13 +46,18 @@
   },
   "content": {
     "post_frequency": "daily",
-    "video_ratio": 0.3,
-    "carousel_ratio": 0.4,
-    "single_image_ratio": 0.3,
+    "video_ratio": 0.6,
+    "carousel_ratio": 0.25,
+    "single_image_ratio": 0.15,
     "hashtag_count": {
       "instagram": 20,
       "twitter": 5,
       "tiktok": 10
+    },
+    "video_generation": {
+      "trending_topics": true,
+      "use_avatar": true,
+      "optimize_for_instagram": true
     }
   },
   "analytics": {
