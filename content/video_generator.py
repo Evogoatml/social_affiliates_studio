@@ -169,14 +169,14 @@ class VideoGenerator:
         params = self._get_platform_params(platform)
         
         # Generate video with failover
-        result = await self._generate_with_failover(
+        result, provider_used = await self._generate_with_failover(
             prompt=prompt,
             **params
         )
         
         # Track in database if successful
         if result and result.status != VideoStatus.FAILED and self.db:
-            await self._track_generation(result, trend, prompt)
+            await self._track_generation(result, trend, prompt, provider_used)
         
         return result
     
@@ -241,7 +241,7 @@ Hashtags: {', '.join(hashtags[:5])}"""
         self,
         prompt: str,
         **kwargs
-    ) -> Optional[VideoResult]:
+    ) -> tuple[Optional[VideoResult], Optional[str]]:
         """
         Generate video with automatic provider failover
         
@@ -250,14 +250,14 @@ Hashtags: {', '.join(hashtags[:5])}"""
             **kwargs: Generation parameters
         
         Returns:
-            VideoResult or None if all providers failed
+            Tuple of (VideoResult, provider_name) or (None, None) if all providers failed
         """
         # Get ordered list of providers
         provider_order = self._get_provider_order()
         
         if not provider_order:
             logger.error("❌ No video providers available")
-            return None
+            return None, None
         
         # Try each provider in order
         for provider_name in provider_order:
@@ -303,11 +303,18 @@ Hashtags: {', '.join(hashtags[:5])}"""
                         # Update stats
                         self._update_stats(provider_name, result)
                         
+                        # Update provider performance in database
+                        if self.db:
+                            self.db.update_provider_performance(provider_name, {
+                                "cost_usd": result.cost_usd or estimated_cost,
+                                "status": result.status.value
+                            })
+                        
                         logger.info(
                             f"✅ Video generated successfully with {provider_name} "
                             f"(cost: ${result.cost_usd:.2f})"
                         )
-                        return result
+                        return result, provider_name
                     else:
                         logger.warning(
                             f"⚠️ {provider_name} generation failed, trying next provider"
@@ -322,7 +329,7 @@ Hashtags: {', '.join(hashtags[:5])}"""
                 continue
         
         logger.error("❌ All video providers failed")
-        return None
+        return None, None
     
     def _get_provider_order(self) -> List[str]:
         """Get providers ordered by priority"""
@@ -427,7 +434,7 @@ Hashtags: {', '.join(hashtags[:5])}"""
         else:
             provider_stats["failed"] += 1
     
-    async def _track_generation(self, result: VideoResult, trend: Dict, prompt: str):
+    async def _track_generation(self, result: VideoResult, trend: Dict, prompt: str, provider: str):
         """Track video generation in database"""
         try:
             if not self.db:
@@ -435,6 +442,7 @@ Hashtags: {', '.join(hashtags[:5])}"""
             
             self.db.add_video_generation({
                 "job_id": result.job_id,
+                "provider": provider,
                 "prompt": prompt,
                 "cost_usd": result.cost_usd or 0.0,
                 "duration_seconds": result.duration or 0,
@@ -444,7 +452,7 @@ Hashtags: {', '.join(hashtags[:5])}"""
                 "created_at": datetime.now().isoformat()
             })
             
-            logger.info(f"✅ Video generation tracked in database")
+            logger.info(f"✅ Video generation tracked in database (provider: {provider})")
         except Exception as e:
             logger.exception(f"❌ Failed to track video generation: {e}")
     

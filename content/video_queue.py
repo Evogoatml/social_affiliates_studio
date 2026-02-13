@@ -253,7 +253,7 @@ class VideoQueue:
         while not self.queue.empty():
             try:
                 await self.queue.get()
-            except:
+            except Exception:
                 break
         
         self.active_requests.clear()

@@ -3,3 +3,7 @@
 2026-02-13 19:23:37 - core.database - INFO - ✅ Video generation saved: test-123
 2026-02-13 19:23:37 - core.database - INFO - ✅ Provider performance updated: kling
 2026-02-13 19:23:37 - core.database - INFO - 📊 Database connection closed
+2026-02-13 19:27:23 - core.database - INFO - 📊 Connected to database: test_provider_tracking.db
+2026-02-13 19:27:23 - core.database - INFO - ✅ Database tables created/verified (including viral content and video generation tables)
+2026-02-13 19:27:23 - core.database - INFO - ✅ Video generation saved: test-123
+2026-02-13 19:27:23 - core.database - INFO - 📊 Database connection closed
