@@ -4,9 +4,11 @@ Coordinates all components to run autonomously
 """
 
 import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List
 import json
+import urllib.request
+import urllib.error
+from datetime import datetime, timedelta
+from typing import Callable, Dict, List, Optional
 
 from .logger import setup_logger
 from .config import Config
@@ -63,7 +65,12 @@ class AutonomousOrchestrator:
         self.last_viral_scrape = None
         self.last_podcast_generation = None
         self.last_video_generation = None
-        
+
+        # HITL settings - can be overridden at runtime
+        self.hitl_enabled: bool = self.config.get("hitl.enabled", True)
+        self.hitl_dashboard_url: str = self.config.get("hitl.dashboard_url", "http://localhost:5000")
+        self._approval_callback: Optional[Callable] = None
+
         logger.info("✓ Orchestrator initialized with Viral Intelligence, Video Generation & Podcast Generator")
     
     async def start(self):
@@ -280,34 +287,89 @@ class AutonomousOrchestrator:
                 logger.exception(f"Error in main loop: {e}")
                 await asyncio.sleep(60)
     
+    def set_approval_callback(self, callback: Callable):
+        """Inject a callback used when HITL approval is needed (e.g. from the dashboard server)."""
+        self._approval_callback = callback
+
+    def _request_hitl_approval(self, approval_type: str, item: dict, description: str) -> Optional[str]:
+        """
+        Push an approval request to the dashboard.
+        Returns the approval_id on success, None on failure.
+        Falls back gracefully if the dashboard is not reachable.
+        """
+        # Use an injected callback when running in-process with the dashboard
+        if self._approval_callback:
+            return self._approval_callback(approval_type, item, description)
+
+        # Otherwise call the dashboard HTTP API
+        url = f"{self.hitl_dashboard_url}/api/request-approval"
+        payload = json.dumps({
+            "type": approval_type,
+            "item": item,
+            "description": description
+        }).encode()
+        try:
+            req = urllib.request.Request(url, data=payload,
+                                         headers={"Content-Type": "application/json"},
+                                         method="POST")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                data = json.loads(resp.read())
+                return data.get("approval_id")
+        except Exception as e:
+            logger.warning(f"Could not reach HITL dashboard ({e}); bypassing approval")
+            return None
+
+    async def _is_approved(self, content_id: str) -> bool:
+        """Check the DB to see if a content item has been approved."""
+        content = self.db.get_content(content_id)
+        return content is not None and content.get("status") == "approved"
+
     async def _process_scheduled_posts(self):
-        """Process and post scheduled content"""
+        """Process and post scheduled content, gating through HITL approval when enabled."""
         now = datetime.now()
-        
+
         for post in self.posting_schedule:
-            if not post["posted"] and post["scheduled_time"] <= now:
-                try:
-                    logger.info(f"📤 Posting to {post['platform']}...")
-                    
-                    success = await self.social_manager.post_content(
+            if post["posted"] or post["scheduled_time"] > now:
+                continue
+
+            content = post["content"]
+            content_id = content.get("id", "")
+
+            try:
+                # HITL gate: require approval before posting
+                if self.hitl_enabled and self.config.get("hitl.require_posting_approval", True):
+                    approved = await self._is_approved(content_id)
+                    if not approved:
+                        # Request approval if not already in the queue
+                        existing = self.db.get_content(content_id)
+                        if existing and existing.get("status") == "pending":
+                            logger.info(f"⏳ Post {content_id} awaiting HITL approval — skipping")
+                            self._request_hitl_approval(
+                                "post",
+                                {**content, "platform": post["platform"]},
+                                f"Approve post to {post['platform']}: {content.get('caption', '')[:60]}"
+                            )
+                        continue
+
+                logger.info(f"📤 Posting to {post['platform']}...")
+                success = await self.social_manager.post_content(
+                    platform=post["platform"],
+                    content=content
+                )
+
+                if success:
+                    post["posted"] = True
+                    await self.analytics.record_post(
                         platform=post["platform"],
-                        content=post["content"]
+                        content_id=content_id,
+                        timestamp=now
                     )
-                    
-                    if success:
-                        post["posted"] = True
-                        # Track in analytics
-                        await self.analytics.record_post(
-                            platform=post["platform"],
-                            content_id=post["content"].get("id"),
-                            timestamp=now
-                        )
-                        logger.info(f"✅ Posted to {post['platform']}")
-                    else:
-                        logger.warning(f"⚠️ Failed to post to {post['platform']}")
-                        
-                except Exception as e:
-                    logger.exception(f"Error posting to {post['platform']}: {e}")
+                    logger.info(f"✅ Posted to {post['platform']}")
+                else:
+                    logger.warning(f"⚠️ Failed to post to {post['platform']}")
+
+            except Exception as e:
+                logger.exception(f"Error posting to {post['platform']}: {e}")
     
     async def _optimize_based_on_analytics(self):
         """Analyze performance and optimize strategy"""

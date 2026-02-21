@@ -233,9 +233,24 @@ class Database:
                 updated_at TEXT NOT NULL
             )
         ''')
-        
+
+        # HITL approvals table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS approvals (
+                id TEXT PRIMARY KEY,
+                type TEXT NOT NULL,
+                item TEXT NOT NULL,
+                description TEXT,
+                status TEXT DEFAULT 'pending',
+                requested_at TEXT NOT NULL,
+                resolved_at TEXT,
+                resolved_by TEXT,
+                rejection_reason TEXT
+            )
+        ''')
+
         self.conn.commit()
-        logger.info("✅ Database tables created/verified (including viral content and video generation tables)")
+        logger.info("✅ Database tables created/verified (including viral content, video generation, and approvals tables)")
     
     # Content operations
     def save_content(self, content: Dict) -> bool:
@@ -920,6 +935,72 @@ class Database:
             }
         return {}
     
+    # HITL approval operations
+    def save_approval(self, approval: Dict) -> bool:
+        """Persist a new approval request"""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute('''
+                INSERT OR REPLACE INTO approvals
+                (id, type, item, description, status, requested_at, resolved_at, resolved_by, rejection_reason)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                approval.get('id'),
+                approval.get('type'),
+                json.dumps(approval.get('item', {})),
+                approval.get('description'),
+                approval.get('status', 'pending'),
+                approval.get('requested_at'),
+                approval.get('resolved_at'),
+                approval.get('resolved_by'),
+                approval.get('rejection_reason'),
+            ))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Failed to save approval: {e}")
+            return False
+
+    def get_pending_approvals_db(self) -> List[Dict]:
+        """Load all pending approvals from DB"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT * FROM approvals WHERE status = 'pending'
+            ORDER BY requested_at ASC
+        ''')
+        rows = []
+        for row in cursor.fetchall():
+            a = dict(row)
+            a['item'] = json.loads(a['item']) if a['item'] else {}
+            rows.append(a)
+        return rows
+
+    def update_approval(self, approval_id: str, updates: Dict) -> bool:
+        """Update an approval record"""
+        try:
+            cursor = self.conn.cursor()
+            set_clause = ", ".join([f"{k} = ?" for k in updates])
+            cursor.execute(
+                f"UPDATE approvals SET {set_clause} WHERE id = ?",
+                list(updates.values()) + [approval_id]
+            )
+            self.conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Failed to update approval: {e}")
+            return False
+
+    def get_recent_activity(self, limit: int = 20) -> List[Dict]:
+        """Return recent approval events for the activity feed"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT id, type, description, status, requested_at, resolved_at
+            FROM approvals
+            ORDER BY requested_at DESC
+            LIMIT ?
+        ''', (limit,))
+        return [dict(row) for row in cursor.fetchall()]
+
     def __enter__(self):
         """Context manager entry"""
         return self
