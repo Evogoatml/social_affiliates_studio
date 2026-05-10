@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        .studio-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Panel - Input */
+        .input-panel {
+            width: 450px;
+            background: #1a1a1a;
+            border-right: 1px solid #333;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 32px;
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            color: #999;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: #2a2a2a;
+            border-color: #6c63ff;
+            color: #fff;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .output-checkboxes {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .output-option {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .output-option input[type="checkbox"] {
+            display: none;
+        }
+
+        .output-option label {
+            display: block;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .output-option input[type="checkbox"]:checked + label {
+            border-color: #6c63ff;
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: #6c63ff;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .generate-btn:hover {
+            background: #5a52d5;
+            transform: translateY(-1px);
+        }
+
+        .generate-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        /* Right Panel - Results */
+        .results-panel {
+            flex: 1;
+            background: #0a0a0a;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .results-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #999;
+        }
+
+        .result-section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #333;
+        }
+
+        .result-section h3 {
+            font-size: 16px;
+            color: #6c63ff;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .generated-text {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .poster-image {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .video-script {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 48px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #333;
+            border-top-color: #6c63ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .quality-scores {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .score-item {
+            flex: 1;
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #6c63ff;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 96px 24px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="studio-container">
+        <!-- Left Panel - Input -->
+        <div class="input-panel">
+            <div class="panel-header">
+                <i class="fas fa-magic"></i> Content Studio
+            </div>
+
+            <form id="generate-form">
+                <div class="form-group">
+                    <label class="form-label">Platform</label>
+                    <select class="form-select" id="platform" required>
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="Twitter">Twitter</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tone</label>
+                    <select class="form-select" id="tone" required>
+                        <option value="Professional">Professional</option>
+                        <option value="Casual">Casual</option>
+                        <option value="Funny">Funny</option>
+                        <option value="Inspirational">Inspirational</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ad Text / Topic</label>
+                    <textarea class="form-control" id="ad-text" rows="4" 
+                              placeholder="Describe what you want to promote..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Output Type</label>
+                    <div class="output-checkboxes">
+                        <div class="output-option">
+                            <input type="checkbox" id="output-text" value="text" checked>
+                            <label for="output-text">
+                                <i class="fas fa-font"></i><br>
+                                Text
+                            </label>
+                        </div>
+                        <div class="output-option">
+                            <input type="checkbox" id="output-poster" value="poster" checked>
+                            <label for="output-poster">
+                                <i class="fas fa-image"></i><br>
+                                Poster
+                            </label>
+                        </div>
+                        <div class="output-option">
+                            <input type="checkbox" id="output-video" value="video">
+                            <label for="output-video">
+                                <i class="fas fa-video"></i><br>
+                                Video
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Brand Guidelines (Optional)</label>
+                    <textarea class="form-control" id="brand-guidelines" rows="2" 
+                              placeholder="Any specific brand requirements..."></textarea>
+                </div>
+
+                <button type="submit" class="generate-btn" id="generate-btn">
+                    <i class="fas fa-sparkles"></i> Generate Content
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Panel - Results -->
+        <div class="results-panel">
+            <div class="results-header">Generated Content</div>
+
+            <div class="loading-spinner" id="loading">
+                <div class="spinner"></div>
+                <div>Generating your content...</div>
+            </div>
+
+            <div id="empty-state" class="empty-state">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <h4>No content generated yet</h4>
+                <p>Fill in the left panel and click Generate</p>
+            </div>
+
+            <div id="results" style="display: none;">
+                <div class="result-section" id="text-result">
+                    <h3><i class="fas fa-font"></i> Generated Text</h3>
+                    <div class="generated-text" id="generated-text"></div>
+                </div>
+
+                <div class="result-section" id="poster-result" style="display: none;">
+                    <h3><i class="fas fa-image"></i> Poster</h3>
+                    <img class="poster-image" id="poster-image" src="" alt="Generated poster">
+                </div>
+
+                <div class="result-section" id="video-result" style="display: none;">
+                    <h3><i class="fas fa-video"></i> Video Script</h3>
+                    <div class="video-script" id="video-script"></div>
+                    <div id="video-gif-container" style="display: none; margin-top: 16px;">
+                        <img id="video-gif" src="" alt="Video preview" class="poster-image">
+                    </div>
+                </div>
+
+                <div class="result-section" id="quality-section" style="display: none;">
+                    <h3><i class="fas fa-chart-line"></i> Quality Scores</h3>
+                    <div class="quality-scores" id="quality-scores"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generate-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('generate-btn');
+            const loading = document.getElementById('loading');
+            const emptyState = document.getElementById('empty-state');
+            const results = document.getElementById('results');
+
+            // Get form data
+            const platform = document.getElementById('platform').value;
+            const tone = document.getElementById('tone').value;
+            const adText = document.getElementById('ad-text').value;
+            const brandGuidelines = document.getElementById('brand-guidelines').value;
+
+            const outputs = [];
+            if (document.getElementById('output-text').checked) outputs.push('text');
+            if (document.getElementById('output-poster').checked) outputs.push('poster');
+            if (document.getElementById('output-video').checked) outputs.push('video');
+
+            if (outputs.length === 0) {
+                alert('Please select at least one output type');
+                return;
+            }
+
+            // Show loading
+            btn.disabled = true;
+            emptyState.style.display = 'none';
+            results.style.display = 'none';
+            loading.classList.add('active');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        platform,
+                        tone,
+                        ad_text: adText,
+                        outputs,
+                        brand_guidelines: brandGuidelines || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Generation failed');
+                }
+
+                // Display results
+                displayResults(data);
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        });
+
+        function displayResults(data) {
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+
+            // Text result
+            if (data.text) {
+                document.getElementById('text-result').style.display = 'block';
+                document.getElementById('generated-text').textContent = data.text;
+            }
+
+            // Poster result
+            if (data.poster_url) {
+                document.getElementById('poster-result').style.display = 'block';
+                document.getElementById('poster-image').src = data.poster_url;
+            }
+
+            // Video result
+            if (data.video_script) {
+                document.getElementById('video-result').style.display = 'block';
+                document.getElementById('video-script').textContent = data.video_script;
+            }
+
+            if (data.video_gif_url) {
+                document.getElementById('video-gif-container').style.display = 'block';
+                document.getElementById('video-gif').src = data.video_gif_url;
+            }
+
+            // Quality scores
+            if (data.quality_scores) {
+                document.getElementById('quality-section').style.display = 'block';
+                const scoresDiv = document.getElementById('quality-scores');
+                scoresDiv.innerHTML = Object.entries(data.quality_scores)
+                    .map(([key, value]) => `
+                        <div class="score-item">
+                            <div class="score-value">${value}</div>
+                            <div class="score-label">${key}</div>
+                        </div>
+                    `).join('');
+            }
+        }
+    </script>
+</body>
+</html>

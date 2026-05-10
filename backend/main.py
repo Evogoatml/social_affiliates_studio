@@ -1,7 +1,11 @@
-from fastapi import FastAPI, HTTPException, Depends, APIRouter, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Depends, APIRouter, UploadFile, File, Form, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import Response, StreamingResponse
+from fastapi.responses import Response, StreamingResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from typing import List
+from pathlib import Path
 from motor.motor_asyncio import AsyncIOMotorClient
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -52,6 +56,12 @@ try:
 except ImportError as e:
     print(f"RAG system not available: {e}")
     RAG_AVAILABLE = False
+
+# Import custom WebSocket manager
+from core.websocket_manager import WebSocketManager
+
+# Initialize WebSocket manager for real-time features
+ws_manager = WebSocketManager()
 
 # Pydantic models
 class GenerationHistory(BaseModel):
@@ -171,6 +181,56 @@ async def lifespan(app: FastAPI):
     # Cleanup (if needed)
     print("Shutting down AgenticAds backend")
 
+
+# Reusable helper functions for both REST and WebSocket
+async def get_dashboard_stats_data():
+    """Get dashboard statistics (reusable for REST/WebSocket)"""
+    try:
+        gen_collection = db.generation_history
+        generations = await gen_collection.find().to_list(length=None)
+
+        feedback_collection = db.feedback
+        feedbacks = await feedback_collection.find().to_list(length=None)
+
+        total_generations = len(generations)
+        total_users = len(set(f['email'] for f in feedbacks)) if feedbacks else 0
+        avg_rating = sum(f['rating'] for f in feedbacks) / len(feedbacks) if feedbacks else 0.0
+        successful_generations = len([g for g in generations if g.get('status') == 'Completed'])
+        success_rate = (successful_generations / total_generations * 100) if total_generations > 0 else 0.0
+
+        return {
+            "totalGenerations": total_generations,
+            "totalUsers": total_users,
+            "avgRating": round(avg_rating, 1),
+            "successRate": round(success_rate, 1)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def get_chart_data_data():
+    """Get chart data (reusable for REST/WebSocket)"""
+    try:
+        collection = db.generation_history
+        generations = await collection.find().to_list(length=None)
+
+        platform_stats = {}
+        for gen in generations:
+            platform = gen.get('platform', 'Unknown')
+            platform_stats[platform] = platform_stats.get(platform, 0) + 1
+
+        tone_stats = {}
+        for gen in generations:
+            tone = gen.get('tone', 'Unknown')
+            tone_stats[tone] = tone_stats.get(tone, 0) + 1
+
+        return {
+            "platformStats": platform_stats,
+            "toneStats": tone_stats
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # CREATE FastAPI app with lifespan
 app = FastAPI(title="AgenticAds Backend API", version="1.0.0", lifespan=lifespan)
 
@@ -188,6 +248,60 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount dashboard static files and templates
+DASHBOARD_DIR = Path(__file__).parent.parent / "dashboard"
+app.mount("/static", StaticFiles(directory=DASHBOARD_DIR / "static"), name="static")
+templates = Jinja2Templates(directory=str(DASHBOARD_DIR / "templates"))
+
+
+@app.get("/", response_class=HTMLResponse)
+async def dashboard_home(request: Request):
+    """Serve the dashboard HTML"""
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
+
+# Native WebSocket endpoint for real-time features
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """Native WebSocket endpoint for real-time dashboard updates"""
+    await ws_manager.connect(websocket)
+    try:
+        while True:
+            # Receive client message
+            data = await websocket.receive_json()
+            message_type = data.get("type", "unknown")
+
+            if message_type == "request_stats":
+                stats = await get_dashboard_stats_data()
+                await websocket.send_json({"type": "stats_update", "data": stats})
+
+            elif message_type == "request_charts":
+                charts = await get_chart_data_data()
+                await websocket.send_json({"type": "charts_update", "data": charts})
+
+            elif message_type == "subscribe":
+                # Acknowledge subscription
+                await websocket.send_json({
+                    "type": "subscribed",
+                    "message": "Subscribed to real-time updates"
+                })
+
+            elif message_type == "ping":
+                await websocket.send_json({"type": "pong"})
+
+            else:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": f"Unknown message type: {message_type}"
+                })
+
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+        ws_manager.disconnect(websocket)
+
 
 # API Routes
 @app.get("/")
@@ -221,6 +335,13 @@ async def create_generation_history(generation: GenerationHistory):
         collection = db.generation_history
         result = await collection.insert_one(generation.model_dump())
         print(f"✅ Generation history saved: ID={generation.id}, Platform={generation.platform}, Status={generation.status}, Date={generation.date}, Time={generation.time}")
+        
+        # Broadcast real-time update to WebSocket clients
+        await ws_manager.broadcast_json({
+            "type": "new_generation",
+            "data": generation.model_dump()
+        })
+        
         return generation
     except Exception as e:
         print(f"❌ Failed to save generation history: {str(e)}")
@@ -246,6 +367,13 @@ async def create_feedback(feedback: FeedbackItem):
         collection = db.feedback
         result = await collection.insert_one(feedback.model_dump())
         print(f"✅ Feedback saved: Email={feedback.email}, Action={feedback.action}, Rating={feedback.rating}, Date={feedback.date}, Platform={feedback.platform}")
+        
+        # Broadcast real-time update to WebSocket clients
+        await ws_manager.broadcast_json({
+            "type": "new_feedback",
+            "data": feedback.model_dump()
+        })
+        
         return feedback
     except Exception as e:
         print(f"❌ Failed to save feedback: {str(e)}")
@@ -253,59 +381,15 @@ async def create_feedback(feedback: FeedbackItem):
 
 @app.get("/api/dashboard/stats", response_model=DashboardStats)
 async def get_dashboard_stats():
-    """Get dashboard statistics"""
-    try:
-        # Get generation history
-        gen_collection = db.generation_history
-        generations = await gen_collection.find().to_list(length=None)
-
-        # Get feedback
-        feedback_collection = db.feedback
-        feedbacks = await feedback_collection.find().to_list(length=None)
-
-        # Calculate stats
-        total_generations = len(generations)
-        total_users = len(set(f['email'] for f in feedbacks)) if feedbacks else 0
-        avg_rating = sum(f['rating'] for f in feedbacks) / len(feedbacks) if feedbacks else 0.0
-
-        # Calculate success rate (assuming 'Completed' status means success)
-        successful_generations = len([g for g in generations if g.get('status') == 'Completed'])
-        success_rate = (successful_generations / total_generations * 100) if total_generations > 0 else 0.0
-
-        return DashboardStats(
-            totalGenerations=total_generations,
-            totalUsers=total_users,
-            avgRating=round(avg_rating, 1),
-            successRate=round(success_rate, 1)
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    """Get dashboard statistics (REST)"""
+    data = await get_dashboard_stats_data()
+    return DashboardStats(**data)
 
 @app.get("/api/dashboard/charts", response_model=ChartData)
 async def get_chart_data():
-    """Get chart data for platform and tone statistics"""
-    try:
-        collection = db.generation_history
-        generations = await collection.find().to_list(length=None)
-
-        # Calculate platform stats
-        platform_stats = {}
-        for gen in generations:
-            platform = gen.get('platform', 'Unknown')
-            platform_stats[platform] = platform_stats.get(platform, 0) + 1
-
-        # Calculate tone stats
-        tone_stats = {}
-        for gen in generations:
-            tone = gen.get('tone', 'Unknown')
-            tone_stats[tone] = tone_stats.get(tone, 0) + 1
-
-        return ChartData(
-            platformStats=platform_stats,
-            toneStats=tone_stats
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    """Get chart data for platform and tone statistics (REST)"""
+    data = await get_chart_data_data()
+    return ChartData(**data)
 
 # RAG System Endpoints
 if RAG_AVAILABLE:

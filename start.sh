@@ -84,11 +84,11 @@ start_service \
     "frontend" \
     "cd '$ROOT' && npm run frontend:dev"
 
-# 3. HITL Dashboard (:5000)
+# 3. Content Studio (:5050)
 start_service \
-    "HITL Dashboard   :5000" \
-    "dashboard" \
-    "cd '$ROOT' && python dashboard/server.py"
+    "Content Studio   :5050" \
+    "content_studio" \
+    "cd '$ROOT/content_studio' && pip install -r requirements.txt && python app.py"
 
 # 4. Autonomous Orchestrator
 start_service \
@@ -109,17 +109,17 @@ done
 # ── Summary ─────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}${GREEN}"
-echo "╔══════════════════════════════════════════════╗"
+echo "╔════════════════════════════════════════════╗"
 echo "║  All services launched                       ║"
 echo "║                                              ║"
 echo "║  Backend API  →  http://localhost:8000       ║"
 echo "║  API Docs     →  http://localhost:8000/docs  ║"
 echo "║  Frontend     →  http://localhost:5173       ║"
-echo "║  Dashboard    →  http://localhost:5000       ║"
+echo "║  Dashboard    →  http://localhost:8000       ║"
 echo "║                                              ║"
 echo "║  Logs:  ./logs/                              ║"
 echo "║  Stop:  Ctrl+C  or  make stop               ║"
-echo "╚══════════════════════════════════════════════╝${NC}"
+echo "╚════════════════════════════════════════════╝${NC}"
 echo ""
 
 # ── Tail all logs ────────────────────────────────────────────

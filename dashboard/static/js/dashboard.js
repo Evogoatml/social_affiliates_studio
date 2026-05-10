@@ -49,35 +49,70 @@ function showSection(section) {
     loadSectionData(section);
 }
 
-// WebSocket
+// Native WebSocket (no SocketIO dependency)
+let ws = null;
+
 function initializeWebSocket() {
-    socket.on('connected', (data) => {
-        console.log('Connected to server:', data);
-    });
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
     
-    socket.on('new_approval_request', (approval) => {
-        console.log('New approval request:', approval);
-        pendingApprovals.push(approval);
-        updateApprovalsBadge();
-        loadApprovals();
-        showNotification('New approval request', 'warning');
-    });
+    ws = new WebSocket(wsUrl);
     
-    socket.on('approval_processed', (data) => {
-        console.log('Approval processed:', data);
-        loadApprovals();
-        showNotification(`Approval ${data.status}`, 'success');
-    });
+    ws.onopen = () => {
+        console.log('Connected to WebSocket server');
+        // Subscribe to real-time updates
+        ws.send(JSON.stringify({ type: 'subscribe' }));
+        // Request initial stats
+        ws.send(JSON.stringify({ type: 'request_stats' }));
+    };
     
-    socket.on('stats_update', (data) => {
-        stats = data;
-        updateDashboard();
-    });
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('WebSocket message:', data);
+        
+        switch(data.type) {
+            case 'subscribed':
+                console.log('Subscribed to real-time updates');
+                break;
+                
+            case 'stats_update':
+                stats = data.data;
+                updateDashboard();
+                break;
+                
+            case 'new_generation':
+                showNotification('New generation created', 'info');
+                break;
+                
+            case 'new_feedback':
+                showNotification('New feedback received', 'info');
+                break;
+                
+            case 'pong':
+                // Heartbeat response
+                break;
+                
+            case 'error':
+                console.error('WebSocket error:', data.message);
+                break;
+        }
+    };
     
-    socket.on('settings_updated', (settings) => {
-        console.log('Settings updated:', settings);
-        showNotification('Settings saved', 'success');
-    });
+    ws.onclose = () => {
+        console.log('WebSocket disconnected, reconnecting...');
+        setTimeout(initializeWebSocket, 3000);
+    };
+    
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+}
+
+// Helper to send WebSocket messages
+function sendWebSocketMessage(type, data = {}) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type, ...data }));
+    }
 }
 
 // Forms

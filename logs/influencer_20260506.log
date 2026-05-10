@@ -1,0 +1,79 @@
+2026-05-06 17:33:17 - __main__ - INFO - 🚀 Starting Autonomous Influencer System...
+2026-05-06 17:33:17 - core.database - INFO - 📊 Connected to database: data/influencer.db
+2026-05-06 17:33:21 - core.database - INFO - ✅ Database tables created/verified (including viral content and video generation tables)
+2026-05-06 17:33:21 - content.media_generator - INFO - ✅ Media Generator initialized
+2026-05-06 17:33:21 - content.video_generator - WARNING - ⚠️ No API key found for kling, skipping
+2026-05-06 17:33:21 - content.video_generator - INFO - ⏭️ Skipping disabled provider: pika
+2026-05-06 17:33:21 - content.video_generator - INFO - ⏭️ Skipping disabled provider: runway
+2026-05-06 17:33:21 - content.video_generator - INFO - ⏭️ Skipping disabled provider: heygen
+2026-05-06 17:33:21 - content.video_queue - INFO - ✅ Video Queue initialized (max concurrent: 3)
+2026-05-06 17:33:21 - content.video_utils - INFO - ✅ Video Optimizer initialized
+2026-05-06 17:33:21 - content.video_generator - INFO - ✅ Video Generator initialized
+2026-05-06 17:33:21 - analytics.video_analytics - INFO - ✅ Video Analytics initialized
+2026-05-06 17:33:21 - content.media_generator - INFO - ✅ Video Generator linked to Media Generator
+2026-05-06 17:33:21 - core.orchestrator - INFO - ✓ Orchestrator initialized with Viral Intelligence, Video Generation & Podcast Generator
+2026-05-06 17:33:21 - core.orchestrator - INFO - 🔧 Initializing systems...
+2026-05-06 17:33:21 - core.orchestrator - INFO - 🎨 Creating life-like avatar...
+2026-05-06 17:33:21 - avatar.avatar_generator - INFO - 🎨 Creating avatar with config: {'style': 'realistic', 'personality': 'friendly, professional, engaging', 'age_range': '25-35', 'gender': 'neutral', 'ethnicity': 'diverse'}
+2026-05-06 17:33:21 - avatar.avatar_generator - INFO - 📝 Creating placeholder avatar data...
+2026-05-06 17:33:21 - avatar.avatar_generator - INFO - ✅ Avatar created successfully
+2026-05-06 17:33:21 - core.orchestrator - INFO - ✅ Avatar created successfully
+2026-05-06 17:33:21 - core.orchestrator - INFO - 📊 Planning marketing strategy...
+2026-05-06 17:33:21 - marketing.strategy_planner - INFO - 📊 Creating strategy for niche: lifestyle, audience: 18-35 professionals
+2026-05-06 17:33:21 - marketing.strategy_planner - INFO - ✅ Strategy created: Lifestyle Influencer Strategy
+2026-05-06 17:33:21 - core.orchestrator - INFO - ✅ Strategy created: Lifestyle Influencer Strategy
+2026-05-06 17:33:21 - core.orchestrator - INFO - 📝 Generating content batch...
+2026-05-06 17:33:21 - core.orchestrator - INFO - 🔥 Scraping trending content for video generation...
+2026-05-06 17:33:21 - analytics.viral_scraper - INFO - 🔥 Starting viral content scraping for platforms: ['instagram', 'twitter', 'tiktok']
+2026-05-06 17:33:21 - analytics.viral_scraper - INFO - 📱 Scraping INSTAGRAM...
+2026-05-06 17:33:26 - analytics.viral_scraper - WARNING - Error scraping hashtag lifestyle: JSON Query to api/v1/tags/web_info/: 403 Forbidden - "fail" status, message "login_required" when accessing https://i.instagram.com/api/v1/tags/web_info/?__a=1&__d=dis&tag_name=lifestyle
+2026-05-06 17:33:27 - analytics.viral_scraper - WARNING - Error scraping hashtag dailylife: JSON Query to api/v1/tags/web_info/: 403 Forbidden - "fail" status, message "login_required" when accessing https://i.instagram.com/api/v1/tags/web_info/?__a=1&__d=dis&tag_name=dailylife
+2026-05-06 17:33:32 - analytics.viral_scraper - WARNING - Error scraping hashtag motivation: JSON Query to api/v1/tags/web_info/: 403 Forbidden - "fail" status, message "login_required" when accessing https://i.instagram.com/api/v1/tags/web_info/?__a=1&__d=dis&tag_name=motivation
+2026-05-06 17:33:37 - analytics.viral_scraper - WARNING - Error scraping hashtag wellness: JSON Query to api/v1/tags/web_info/: 403 Forbidden - "fail" status, message "login_required" when accessing https://i.instagram.com/api/v1/tags/web_info/?__a=1&__d=dis&tag_name=wellness
+2026-05-06 17:33:41 - analytics.viral_scraper - WARNING - Error scraping hashtag selfcare: JSON Query to api/v1/tags/web_info/: 403 Forbidden - "fail" status, message "login_required" when accessing https://i.instagram.com/api/v1/tags/web_info/?__a=1&__d=dis&tag_name=selfcare
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - ✅ Scraped 0 items from instagram
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - 📱 Scraping TWITTER...
+2026-05-06 17:33:41 - analytics.viral_scraper - WARNING - ⚠️ Twitter API key not configured, using simulation
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - 📊 Simulating Twitter trending content...
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - ✅ Scraped 20 items from twitter
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - 📱 Scraping TIKTOK...
+2026-05-06 17:33:41 - analytics.viral_scraper - WARNING - ⚠️ TikTok API key not configured, using simulation
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - 📊 Simulating TikTok trending content...
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - ✅ Scraped 20 items from tiktok
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - 💾 Saved 40 items to data/viral_content/viral_content_20260506_173341.json
+2026-05-06 17:33:41 - analytics.viral_scraper - INFO - ✅ Total viral content scraped: 40
+2026-05-06 17:33:41 - core.orchestrator - ERROR - ❌ Error scraping trending content: 'ViralIntelligenceOptimizer' object has no attribute 'analyze_patterns'
+Traceback (most recent call last):
+  File "/home/popic/social_affiliates_studio/core/orchestrator.py", line 147, in _generate_content_batch
+    insights = await self.viral_optimizer.analyze_patterns(viral_data)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ViralIntelligenceOptimizer' object has no attribute 'analyze_patterns'
+2026-05-06 17:33:41 - content.content_engine - INFO - 📝 Generating content for day 0...
+2026-05-06 17:33:41 - __main__ - ERROR - ❌ Fatal error: MediaGenerator.generate_image() got an unexpected keyword argument 'prompt'
+Traceback (most recent call last):
+  File "/home/popic/social_affiliates_studio/app.py", line 29, in main
+    await orchestrator.start()
+  File "/home/popic/social_affiliates_studio/core/orchestrator.py", line 81, in start
+    await self._generate_content_batch()
+  File "/home/popic/social_affiliates_studio/core/orchestrator.py", line 161, in _generate_content_batch
+    content_items = await self.content_engine.generate_daily_content(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/home/popic/social_affiliates_studio/content/content_engine.py", line 48, in generate_daily_content
+    content = await self._generate_single_content(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/home/popic/social_affiliates_studio/content/content_engine.py", line 102, in _generate_single_content
+    media_data = await self.media_generator.generate_image(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        prompt=content["media_prompt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        content_id=content["id"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+TypeError: MediaGenerator.generate_image() got an unexpected keyword argument 'prompt'

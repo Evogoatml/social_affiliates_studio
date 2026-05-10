@@ -1,0 +1,166 @@
+{
+  "info": {
+    "name": "Social Affiliates Studio API",
+    "description": "Postman collection for Social Affiliates Studio REST APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "jwt_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Generation History",
+      "item": [
+        {
+          "name": "Get All History",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/generation-history"
+          }
+        },
+        {
+          "name": "Create History Entry",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/generation-history",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"date\": \"2026-04-28\",\n  \"time\": \"12:00\",\n  \"platform\": \"Instagram\",\n  \"tone\": \"Professional\",\n  \"adText\": \"Test ad\",\n  \"outputs\": \"poster,video\",\n  \"status\": \"Completed\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Feedback",
+      "item": [
+        {
+          "name": "Get All Feedback",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/feedback"
+          }
+        },
+        {
+          "name": "Create Feedback",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/feedback",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"email\": \"test@example.com\",\n  \"message\": \"Great service\",\n  \"rating\": 5,\n  \"action\": \"review\",\n  \"date\": \"2026-04-28\",\n  \"platform\": \"Instagram\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/dashboard/stats"
+          }
+        },
+        {
+          "name": "Get Chart Data",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/dashboard/charts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RAG Generation",
+      "item": [
+        {
+          "name": "Generate Content",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/rag/generate",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"platform\": \"Instagram\",\n  \"tone\": \"Professional\",\n  \"ad_text\": \"New product launch\",\n  \"outputs\": [\"poster\", \"video\"],\n  \"brand_guidelines\": \"Modern style\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get RAG Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/rag/analytics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "File Downloads",
+      "item": [
+        {
+          "name": "Download Video",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/videos/download/sample.gif"
+          }
+        },
+        {
+          "name": "Download Poster",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/posters/download/sample.png"
+          }
+        }
+      ]
+    }
+  ]
+}
